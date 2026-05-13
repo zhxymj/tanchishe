@@ -18,49 +18,30 @@ static void clear_screen(void) {
     SetConsoleCursorPosition(console, top_left);
 }
 
-static int is_snake_cell(const Snake *snake, int x, int y, int *is_head) {
-    for (int i = 0; i < snake->length; i++) {
-        if (snake->body[i].x == x && snake->body[i].y == y) {
-            *is_head = (i == 0);
-            return 1;
-        }
-    }
-    return 0;
-}
-
 void ui_setup(void) {
+    /* TODO(Member 5): add console setup such as cursor hiding if needed. */
     SetConsoleOutputCP(65001);
 }
 
 void ui_cleanup(void) {
+    /* TODO(Member 5): restore console settings if ui_setup changes them. */
     printf("\n");
 }
 
 void ui_draw(const Game *game) {
+    /*
+     * TODO(Member 5): implement board drawing, snake display, food display,
+     * score display, and end screens.
+     */
     clear_screen();
 
-    printf("Snake Game | Score: %d | Level: %d | Speed: %dms\n",
-           game->score,
-           game->level,
-           game->speed_ms);
-    printf("Controls: W/A/S/D move, P pause, R restart, Q quit\n\n");
-
-    for (int y = -1; y <= BOARD_HEIGHT; y++) {
-        for (int x = -1; x <= BOARD_WIDTH; x++) {
-            int is_head = 0;
-
-            if (y == -1 || y == BOARD_HEIGHT || x == -1 || x == BOARD_WIDTH) {
-                putchar('#');
-            } else if (is_snake_cell(&game->snake, x, y, &is_head)) {
-                putchar(is_head ? '@' : 'o');
-            } else if (game->food.position.x == x && game->food.position.y == y) {
-                putchar('*');
-            } else {
-                putchar(' ');
-            }
-        }
-        putchar('\n');
-    }
+    printf("Snake Game Framework\n");
+    printf("Score: %d | Level: %d | Speed: %dms\n",
+           game->score, game->level, game->speed_ms);
+    printf("Snake head: (%d, %d), length: %d\n",
+           game->snake.body[0].x, game->snake.body[0].y, game->snake.length);
+    printf("Food: (%d, %d)\n", game->food.position.x, game->food.position.y);
+    printf("Controls: W/A/S/D move, P pause, R restart, Q quit\n");
 
     if (game->status == GAME_PAUSED) {
         printf("\nPaused. Press P to continue.\n");
@@ -72,6 +53,7 @@ void ui_draw(const Game *game) {
 }
 
 int ui_read_key(void) {
+    /* TODO(Member 5): expand keyboard handling if arrow keys are required. */
     if (!_kbhit()) {
         return 0;
     }
@@ -79,5 +61,6 @@ int ui_read_key(void) {
 }
 
 void ui_sleep(int milliseconds) {
+    /* TODO(Member 5): keep frame delay stable. */
     Sleep((DWORD)milliseconds);
 }

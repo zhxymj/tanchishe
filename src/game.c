@@ -11,6 +11,10 @@
 void game_init(Game *game) {
     static int seeded = 0;
 
+    /*
+     * TODO(Member 1): keep initialization order stable while integrating
+     * teammate modules.
+     */
     if (!seeded) {
         srand((unsigned int)time(NULL));
         seeded = 1;
@@ -27,6 +31,10 @@ void game_init(Game *game) {
 void game_handle_key(Game *game, int key) {
     key = tolower(key);
 
+    /*
+     * TODO(Member 1): maintain game-state input rules.
+     * Movement keys are passed to Member 2's snake direction module.
+     */
     if (key == 'q') {
         game->status = GAME_QUIT;
         return;
@@ -70,6 +78,11 @@ void game_update(Game *game) {
     Point next_head;
     int grow;
 
+    /*
+     * TODO(Member 1): this function is the integration point.
+     * It should call snake, food, collision, and UI-independent game logic
+     * in a clear order once teammate modules are completed.
+     */
     if (game->status != GAME_RUNNING) {
         return;
     }

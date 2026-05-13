@@ -4,6 +4,11 @@
 int main(void) {
     Game game;
 
+    /*
+     * Main framework owned by Member 1.
+     * Other members should keep public function names unchanged so this loop
+     * can integrate every module.
+     */
     ui_setup();
     game_init(&game);
 

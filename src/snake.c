@@ -11,17 +11,25 @@ void snake_init(Snake *snake) {
     int start_x = BOARD_WIDTH / 2;
     int start_y = BOARD_HEIGHT / 2;
 
-    snake->length = INITIAL_SNAKE_LENGTH;
+    /*
+     * TODO(Member 2): initialize the full starting snake body.
+     * Suggested result: length is INITIAL_SNAKE_LENGTH and the body is placed
+     * horizontally near the board center.
+     */
+    snake->length = 1;
     snake->direction = DIR_RIGHT;
     snake->next_direction = DIR_RIGHT;
-
-    for (int i = 0; i < snake->length; i++) {
-        snake->body[i].x = start_x - i;
-        snake->body[i].y = start_y;
-    }
+    snake->body[0].x = start_x;
+    snake->body[0].y = start_y;
 }
 
 void snake_set_direction(Snake *snake, Direction direction) {
+    /*
+     * TODO(Member 2): handle direction update rules.
+     * Required behavior:
+     * 1. update next_direction when input is legal
+     * 2. reject reverse movement, such as RIGHT -> LEFT
+     */
     if (!is_opposite(snake->direction, direction)) {
         snake->next_direction = direction;
     }
@@ -30,48 +38,34 @@ void snake_set_direction(Snake *snake, Direction direction) {
 Point snake_next_head(const Snake *snake) {
     Point head = snake->body[0];
 
-    switch (snake->next_direction) {
-        case DIR_UP:
-            head.y--;
-            break;
-        case DIR_DOWN:
-            head.y++;
-            break;
-        case DIR_LEFT:
-            head.x--;
-            break;
-        case DIR_RIGHT:
-            head.x++;
-            break;
-    }
-
+    /*
+     * TODO(Member 2): calculate and return the next head position according to
+     * next_direction. The placeholder returns the current head so the framework
+     * can compile before the movement module is finished.
+     */
     return head;
 }
 
 void snake_move(Snake *snake, Point next_head, int grow) {
-    int old_length = snake->length;
-
+    /*
+     * TODO(Member 2): complete snake movement and growth.
+     * Required behavior:
+     * 1. update direction
+     * 2. move body segments from tail to head
+     * 3. increase length when grow is true
+     */
+    (void)grow;
     snake->direction = snake->next_direction;
-    if (grow && snake->length < MAX_CELLS) {
-        snake->length++;
-    }
-
-    for (int i = snake->length - 1; i > 0; i--) {
-        if (i < old_length) {
-            snake->body[i] = snake->body[i - 1];
-        } else {
-            snake->body[i] = snake->body[old_length - 1];
-        }
-    }
-
     snake->body[0] = next_head;
 }
 
 int snake_contains_point(const Snake *snake, Point point) {
+    /* TODO(Member 2): keep this helper correct for food and collision modules. */
     return snake_contains_point_from_index(snake, point, 0);
 }
 
 int snake_contains_point_from_index(const Snake *snake, Point point, int start_index) {
+    /* TODO(Member 2): search snake body from start_index. */
     for (int i = start_index; i < snake->length; i++) {
         if (snake->body[i].x == point.x && snake->body[i].y == point.y) {
             return 1;

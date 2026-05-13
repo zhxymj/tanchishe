@@ -1,39 +1,31 @@
 #include "food.h"
 #include "snake.h"
 
-#include <stdlib.h>
-
 void food_spawn(Food *food, const Snake *snake) {
-    Point point;
-
-    if (snake->length >= MAX_CELLS) {
-        food->position.x = -1;
-        food->position.y = -1;
-        return;
-    }
-
-    do {
-        point.x = rand() % BOARD_WIDTH;
-        point.y = rand() % BOARD_HEIGHT;
-    } while (snake_contains_point(snake, point));
-
-    food->position = point;
+    /*
+     * TODO(Member 3): implement random food generation.
+     * Required behavior:
+     * 1. generate a random position inside the board
+     * 2. avoid positions occupied by the snake body
+     * 3. handle the board-full case
+     */
+    (void)snake;
+    food->position.x = 1;
+    food->position.y = 1;
 }
 
 int food_is_eaten(const Food *food, Point head) {
+    /* TODO(Member 3): keep this check accurate after food logic is finished. */
     return food->position.x == head.x && food->position.y == head.y;
 }
 
 void food_apply_score(Game *game) {
-    int previous_level = game->level;
-
-    game->score += POINTS_PER_FOOD;
-    game->level = game->score / LEVEL_SCORE_STEP + 1;
-
-    if (game->level > previous_level && game->speed_ms > MIN_SPEED_MS) {
-        game->speed_ms -= SPEED_STEP_MS;
-        if (game->speed_ms < MIN_SPEED_MS) {
-            game->speed_ms = MIN_SPEED_MS;
-        }
-    }
+    /*
+     * TODO(Member 3): implement scoring, level, and speed rules.
+     * Required behavior:
+     * 1. add points after eating food
+     * 2. update level
+     * 3. increase difficulty by reducing speed_ms
+     */
+    (void)game;
 }

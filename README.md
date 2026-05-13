@@ -1,59 +1,58 @@
-# Snake Game
+# 贪吃蛇项目框架
 
-This is a C console version of Snake for a programming practice group project.
+这是程序设计综合实践的 C 语言控制台贪吃蛇项目框架。项目已经按模块拆分，方便 5 名成员分别提交自己负责的代码。
 
-## Features
+## 当前状态
 
-- Snake movement with `W`, `A`, `S`, `D`
-- Pause and continue with `P`
-- Restart with `R`
-- Quit with `Q`
-- Random food generation that avoids the snake body
-- Score, level, and speed increase after eating food
-- Wall collision, self collision, game over, and victory checks
+- 已经建立公共头文件、共享数据结构和主循环。
+- 当前代码可以编译，作为小组协作的起始框架。
+- 每个 `.c` 文件里都有 `TODO(Member X)` 标记，说明对应成员需要完成的代码。
+- 组员实现模块时尽量不要修改公共函数名，避免影响其他人的代码。
 
-## Project Structure
+## 项目结构
 
 ```text
-snake-game/
+tanchishe/
   src/
-    main.c          Program entry and main loop
-    game.c/.h       Game flow, state management, restart, pause, update
-    snake.c/.h      Snake body data, movement, growth, direction control
-    food.c/.h       Food generation, score, level, speed adjustment
-    collision.c/.h  Wall collision, self collision, victory judgment
-    ui.c/.h         Console drawing, keyboard input, screen refresh
-    config.h        Shared game constants
-    types.h         Shared structs and enums
+    main.c          程序入口和主循环
+    game.c/.h       游戏流程、状态管理、暂停、重开、整合更新
+    snake.c/.h      蛇身数据、移动、增长、方向控制
+    food.c/.h       食物生成、计分、等级和速度调整
+    collision.c/.h  撞墙、撞自身、失败和胜利判断
+    ui.c/.h         控制台绘制、键盘输入、界面刷新
+    config.h        公共游戏常量
+    types.h         公共结构体和枚举
 ```
 
-## Build
+## 编译运行
 
-On Windows with GCC installed:
+Windows 下安装 GCC 后运行：
 
 ```powershell
 gcc src\main.c src\game.c src\snake.c src\food.c src\collision.c src\ui.c -o snake.exe
 .\snake.exe
 ```
 
-## Controls
+## 操作按键
 
-| Key | Action |
+| 按键 | 功能 |
 | --- | --- |
-| `W` | Move up |
-| `A` | Move left |
-| `S` | Move down |
-| `D` | Move right |
-| `P` | Pause or continue |
-| `R` | Restart |
-| `Q` | Quit |
+| `W` | 向上移动 |
+| `A` | 向左移动 |
+| `S` | 向下移动 |
+| `D` | 向右移动 |
+| `P` | 暂停或继续 |
+| `R` | 重新开始 |
+| `Q` | 退出游戏 |
 
-## Group Coding Tasks
+## 小组编码分工
 
-| Member | Coding module | Main work |
+| 成员 | 编码模块 | 主要工作 |
 | --- | --- | --- |
-| Member 1 | Main program and game state | `main.c`, `game.c`, `game.h`: initialization, main loop, pause, restart, quit, game state switching, module integration |
-| Member 2 | Snake movement and direction | `snake.c`, `snake.h`: snake data structure, head movement, body following, direction control, growth |
-| Member 3 | Food, score, and difficulty | `food.c`, `food.h`: random food generation, avoiding snake body, score update, level and speed adjustment |
-| Member 4 | Collision and result judgment | `collision.c`, `collision.h`: wall collision, self collision, game over judgment, victory judgment |
-| Member 5 | Interface and keyboard interaction | `ui.c`, `ui.h`: map drawing, snake and food display, score display, keyboard input, screen refresh |
+| 成员1 | 主程序和游戏状态 | `main.c`, `game.c`, `game.h`：初始化、主循环、暂停、重开、退出、状态切换和模块整合 |
+| 成员2 | 蛇身移动和方向控制 | `snake.c`, `snake.h`：蛇身数据结构、蛇头移动、蛇身跟随、方向控制和增长 |
+| 成员3 | 食物、计分和难度 | `food.c`, `food.h`：随机食物、避免与蛇身重合、得分、等级和速度调整 |
+| 成员4 | 碰撞检测和结果判断 | `collision.c`, `collision.h`：撞墙、撞自身、失败判断和胜利判断 |
+| 成员5 | 界面和键盘交互 | `ui.c`, `ui.h`：地图绘制、蛇和食物显示、分数显示、键盘输入和刷新 |
+
+提交代码前先看 `TASKS.md` 和 `CONTRIBUTING.md`。
