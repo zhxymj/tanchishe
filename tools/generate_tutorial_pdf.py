@@ -279,26 +279,121 @@ def build_story(styles):
     story.append(bullet("写完一个小功能就编译一次，避免最后一次性出现很多错误。", styles))
     story.append(bullet("如果需要新增公共字段，先确认其他成员不会受影响。", styles))
 
-    story.extend(section("7. 提交代码流程", styles))
-    story.extend(subsection("7.1 写代码前先同步", styles))
+    story.extend(section("7. 同步最新代码", styles))
+    story.append(
+        para(
+            "同步最新代码的意思是：把 GitHub 仓库中别人已经提交的内容下载到自己电脑上。每次开始写代码前都应该先同步一次，避免自己基于旧版本继续写。",
+            styles["Body"],
+        )
+    )
+
+    story.extend(subsection("7.1 写代码前的标准同步步骤", styles))
+    story.append(code("cd tanchishe\ngit status\ngit pull origin main", styles))
+    story.append(para("推荐顺序是先进入项目目录，再用 git status 看当前是否有未提交修改，最后运行 git pull origin main 拉取最新代码。", styles["Body"]))
+    story.append(para("如果 git status 显示 working tree clean，说明当前没有未提交修改，可以放心 pull。", styles["Body"]))
+
+    story.extend(subsection("7.2 如果本地还没写代码", styles))
+    story.append(para("这是最简单的情况，直接同步：", styles["Body"]))
     story.append(code("git pull origin main", styles))
-    story.append(para("这一步可以减少和别人代码冲突的概率。", styles["Body"]))
+    story.append(para("看到 Already up to date 表示你本地已经是最新；看到文件更新列表表示 Git 已经把别人的提交合并到你本地。", styles["Body"]))
 
-    story.extend(subsection("7.2 查看自己改了哪些文件", styles))
+    story.extend(subsection("7.3 如果本地已经改了代码但还没提交", styles))
+    story.append(para("先不要直接 pull。先看自己改了哪些文件：", styles["Body"]))
     story.append(code("git status", styles))
-    story.append(para("确认只改了自己负责的文件。如果看到别人的文件也被改了，不要急着提交，先检查是不是误改。", styles["Body"]))
+    story.append(para("如果这些修改是你准备保留的，有两种处理方式。推荐方式是先提交自己的修改，再同步远程代码：", styles["Body"]))
+    story.append(code('git add src\\你的模块.c src\\你的模块.h\ngit commit -m "完成自己的阶段性修改"\ngit pull origin main', styles))
+    story.append(para("如果你只是临时改了一半，还不想提交，可以先暂存修改，再同步，最后恢复修改：", styles["Body"]))
+    story.append(code('git stash push -m "临时保存未完成修改"\ngit pull origin main\ngit stash pop', styles))
+    story.append(para("stash pop 后如果出现冲突，需要手动解决冲突再继续编译。新手更推荐“先 commit，再 pull”。", styles["Body"]))
 
-    story.extend(subsection("7.3 编译检查", styles))
+    story.extend(subsection("7.4 如果 pull 后出现冲突", styles))
+    story.append(para("冲突通常说明两个人改到了同一个文件的同一段代码。先运行：", styles["Body"]))
+    story.append(code("git status", styles))
+    story.append(para("Git 会列出冲突文件。打开冲突文件，找到 <<<<<<<、=======、>>>>>>> 这些标记，和对应组员确认保留哪部分。处理完后：", styles["Body"]))
+    story.append(code('git add 冲突文件路径\ngit commit -m "解决同步冲突"', styles))
+
+    story.extend(section("8. 提交代码到 GitHub", styles))
+    story.append(
+        para(
+            "提交代码分为三步：add 选择要提交的文件，commit 在本地生成一次提交记录，push 把提交上传到 GitHub。",
+            styles["Body"],
+        )
+    )
+
+    story.extend(subsection("8.1 第一次提交前配置姓名和邮箱", styles))
+    story.append(para("每台电脑第一次使用 Git 提交代码时，需要配置提交者信息。把姓名换成自己的 GitHub 用户名或真实姓名：", styles["Body"]))
+    story.append(code('git config --global user.name "你的名字"\ngit config --global user.email "你的邮箱"', styles))
+    story.append(para("这个配置只影响提交记录显示，不会改变代码内容。", styles["Body"]))
+
+    story.extend(subsection("8.2 查看改动范围", styles))
+    story.append(code("git status", styles))
+    story.append(para("重点看红色或绿色文件名，确认只包含自己负责的模块。如果出现不相关文件，不要提交它。", styles["Body"]))
+    story.append(para("想看某个文件具体改了什么，可以运行：", styles["Body"]))
+    story.append(code("git diff src\\snake.c", styles))
+
+    story.extend(subsection("8.3 编译检查", styles))
     story.append(code("gcc src\\main.c src\\game.c src\\snake.c src\\food.c src\\collision.c src\\ui.c -o snake.exe", styles))
-    story.append(para("编译成功后再提交。snake.exe 不需要提交，仓库已经用 .gitignore 忽略它。", styles["Body"]))
+    story.append(para("编译成功后再提交。snake.exe 是编译产物，不需要提交，仓库已经用 .gitignore 忽略它。", styles["Body"]))
 
-    story.extend(subsection("7.4 只提交自己负责的文件", styles))
-    story.append(para("例如成员2完成蛇身模块：", styles["Body"]))
-    story.append(code('git add src\\snake.c src\\snake.h\ngit commit -m "finish snake movement module"\ngit push origin main', styles))
-    story.append(para("例如成员3完成食物和计分模块：", styles["Body"]))
-    story.append(code('git add src\\food.c src\\food.h\ngit commit -m "finish food and score module"\ngit push origin main', styles))
+    story.extend(subsection("8.4 只 add 自己负责的文件", styles))
+    story.append(para("不要习惯性使用 git add .，因为它可能把别人的文件、临时文件或无关文件一起提交。推荐明确写文件名。", styles["Body"]))
+    story.append(para("例如成员2只提交蛇身模块：", styles["Body"]))
+    story.append(code("git add src\\snake.c src\\snake.h", styles))
+    story.append(para("例如成员3只提交食物和计分模块：", styles["Body"]))
+    story.append(code("git add src\\food.c src\\food.h", styles))
 
-    story.extend(section("8. 每个成员的建议实现顺序", styles))
+    story.extend(subsection("8.5 commit：写清楚这次完成了什么", styles))
+    story.append(para("提交信息要简短明确，例如：", styles["Body"]))
+    story.append(code('git commit -m "完成蛇身移动模块"\ngit commit -m "完成食物生成和计分模块"\ngit commit -m "修复撞墙检测逻辑"', styles))
+    story.append(para("如果 commit 后提示 nothing to commit，说明你还没有 git add 文件，或者文件没有实际修改。", styles["Body"]))
+
+    story.extend(subsection("8.6 push：上传到 GitHub", styles))
+    story.append(code("git push origin main", styles))
+    story.append(para("第一次 push 可能会弹出 GitHub 登录窗口，按提示登录自己的 GitHub 账号即可。", styles["Body"]))
+    story.append(para("如果终端网络连不上 GitHub，先设置代理再 push：", styles["Body"]))
+    story.append(code('$env:HTTP_PROXY="http://127.0.0.1:10809"\n$env:HTTPS_PROXY="http://127.0.0.1:10809"\ngit push origin main', styles))
+
+    story.extend(subsection("8.7 push 后确认是否成功", styles))
+    story.append(para("push 成功后，终端通常会显示 main -> main。然后打开 GitHub 仓库页面刷新，确认自己的提交出现在 commits 记录中。", styles["Body"]))
+    story.append(para("也可以在本地查看最近提交：", styles["Body"]))
+    story.append(code("git log --oneline -5", styles))
+
+    story.extend(subsection("8.8 完整示例：成员2提交蛇身模块", styles))
+    story.append(code(
+        r"""
+cd tanchishe
+git pull origin main
+
+# 修改 src\snake.c 和 src\snake.h 后先编译
+gcc src\main.c src\game.c src\snake.c src\food.c src\collision.c src\ui.c -o snake.exe
+
+# 检查、提交、推送
+git status
+git add src\snake.c src\snake.h
+git commit -m "完成蛇身移动模块"
+git push origin main
+""",
+        styles,
+    ))
+
+    story.extend(subsection("8.9 完整示例：成员5提交界面模块", styles))
+    story.append(code(
+        r"""
+cd tanchishe
+git pull origin main
+
+# 修改 src\ui.c 和 src\ui.h 后先编译
+gcc src\main.c src\game.c src\snake.c src\food.c src\collision.c src\ui.c -o snake.exe
+
+git status
+git add src\ui.c src\ui.h
+git commit -m "完成界面绘制和键盘输入模块"
+git push origin main
+""",
+        styles,
+    ))
+
+    story.extend(section("9. 每个成员的建议实现顺序", styles))
     story.append(
         table(
             [
@@ -313,30 +408,30 @@ def build_story(styles):
         )
     )
 
-    story.extend(section("9. 常见问题处理", styles))
-    story.extend(subsection("9.1 git push 失败，提示网络超时", styles))
+    story.extend(section("10. 常见问题处理", styles))
+    story.extend(subsection("10.1 git push 失败，提示网络超时", styles))
     story.append(para("通常是 PowerShell 没有走代理。先执行：", styles["Body"]))
     story.append(code('$env:HTTP_PROXY="http://127.0.0.1:10809"\n$env:HTTPS_PROXY="http://127.0.0.1:10809"', styles))
     story.append(para("如果还是失败，检查 v2rayN 是否正在运行，并确认 HTTP 端口是否为 10809。", styles["Body"]))
 
-    story.extend(subsection("9.2 git push 失败，提示先 pull", styles))
+    story.extend(subsection("10.2 git push 失败，提示先 pull", styles))
     story.append(para("说明别人已经先提交了代码，你本地落后于远程仓库。先运行：", styles["Body"]))
     story.append(code("git pull origin main", styles))
     story.append(para("如果没有冲突，再重新 push。", styles["Body"]))
 
-    story.extend(subsection("9.3 出现代码冲突", styles))
+    story.extend(subsection("10.3 出现代码冲突", styles))
     story.append(para("如果 Git 提示 conflict，说明两个人改到了同一段代码。先不要乱删内容，打开冲突文件，找到类似下面的标记：", styles["Body"]))
     story.append(code("<<<<<<< HEAD\n你的代码\n=======\n别人提交的代码\n>>>>>>> 分支名", styles))
     story.append(para("和对应成员确认保留哪部分，删掉这些冲突标记后重新编译、提交。", styles["Body"]))
 
-    story.extend(subsection("9.4 编译提示 undefined reference", styles))
+    story.extend(subsection("10.4 编译提示 undefined reference", styles))
     story.append(para("通常是函数声明和实现不一致，或者编译命令漏了某个 .c 文件。请使用教程里的完整编译命令。", styles["Body"]))
 
-    story.extend(subsection("9.5 中文显示乱码", styles))
+    story.extend(subsection("10.5 中文显示乱码", styles))
     story.append(para("当前控制台代码使用了 SetConsoleOutputCP(65001)。如果仍然乱码，可以先把终端编码切到 UTF-8：", styles["Body"]))
     story.append(code("chcp 65001", styles))
 
-    story.extend(section("10. 提交前检查清单", styles))
+    story.extend(section("11. 提交前检查清单", styles))
     story.append(bullet("只修改了自己负责的模块文件。", styles))
     story.append(bullet("运行 git status 看过改动范围。", styles))
     story.append(bullet("运行 GCC 编译命令，没有编译错误。", styles))
@@ -344,26 +439,33 @@ def build_story(styles):
     story.append(bullet("commit message 能说明这次完成了什么模块或功能。", styles))
     story.append(bullet("push 后在 GitHub 页面刷新，确认自己的提交已经出现。", styles))
 
-    story.extend(section("11. 最简命令汇总", styles))
+    story.extend(section("12. 最简命令汇总", styles))
     story.append(code(
         r"""
 # 第一次下载项目
 git clone https://github.com/zhxymj/tanchishe.git
 cd tanchishe
 
-# 每次写代码前
+# 每次写代码前同步最新代码
+git status
 git pull origin main
 
 # 编译
 gcc src\main.c src\game.c src\snake.c src\food.c src\collision.c src\ui.c -o snake.exe
 
-# 查看改动
+# 查看自己改了哪些文件
 git status
+git diff src\你的模块.c
 
-# 只提交自己的模块，以成员2为例
+# 只提交自己的模块，以成员2为例，不要乱用 git add .
 git add src\snake.c src\snake.h
-git commit -m "finish snake movement module"
+git commit -m "完成蛇身移动模块"
 git push origin main
+
+# 如果本地改了一半但暂时不能提交，又需要同步远程
+git stash push -m "临时保存未完成修改"
+git pull origin main
+git stash pop
 """,
         styles,
     ))
