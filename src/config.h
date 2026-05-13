@@ -1,0 +1,15 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define BOARD_WIDTH 30
+#define BOARD_HEIGHT 20
+#define MAX_CELLS (BOARD_WIDTH * BOARD_HEIGHT)
+
+#define INITIAL_SNAKE_LENGTH 4
+#define INITIAL_SPEED_MS 160
+#define MIN_SPEED_MS 60
+#define SPEED_STEP_MS 10
+#define POINTS_PER_FOOD 10
+#define LEVEL_SCORE_STEP 50
+
+#endif
