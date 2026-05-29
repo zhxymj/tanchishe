@@ -1,28 +1,24 @@
 #include "collision.h"
 
 int collision_hits_wall(Point point) {
-    /*
-     * TODO(Member 4): implement wall collision.
-     * Return 1 when point is outside the board, otherwise return 0.
-     */
-    (void)point;
-    return 0;
+    return point.x < 0 ||
+           point.x >= BOARD_WIDTH ||
+           point.y < 0 ||
+           point.y >= BOARD_HEIGHT;
 }
 
 int collision_hits_self(const Snake *snake, Point next_head, int grow) {
-    /*
-     * TODO(Member 4): implement self collision.
-     * Hint: when grow is false, moving into the current tail position may be legal
-     * because the tail will move away in the same update.
-     */
-    (void)snake;
-    (void)next_head;
-    (void)grow;
+    int check_length = grow ? snake->length : snake->length - 1;
+
+    for (int i = 0; i < check_length; i++) {
+        if (snake->body[i].x == next_head.x && snake->body[i].y == next_head.y) {
+            return 1;
+        }
+    }
+
     return 0;
 }
 
 int collision_is_victory(const Snake *snake) {
-    /* TODO(Member 4): return 1 when the snake fills the whole board. */
-    (void)snake;
-    return 0;
+    return snake->length >= MAX_CELLS;
 }
