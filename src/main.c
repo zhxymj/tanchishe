@@ -596,7 +596,7 @@ static void DrawFood(const Game *game) {
     float cy = BOARD_Y + (float)game->food.position.y * CELL_SIZE + CELL_SIZE * 0.5f;
     float radius = 6.5f * pulse;
 
-    DrawCircleGradient((int)cx, (int)cy, 20.0f * pulse, (Color){255, 88, 116, 86}, (Color){255, 88, 116, 0});
+    DrawCircleGradient((Vector2){cx, cy}, 20.0f * pulse, (Color){255, 88, 116, 86}, (Color){255, 88, 116, 0});
     DrawCircleV((Vector2){cx, cy}, radius, C_FOOD);
     DrawCircleV((Vector2){cx - radius * 0.32f, cy - radius * 0.35f}, radius * 0.28f, (Color){255, 230, 235, 225});
 }

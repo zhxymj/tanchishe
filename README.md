@@ -42,17 +42,17 @@ tanchishe/
 
 ### 方式一：Windows gcc
 
-假设 raylib 安装在 `C:\raylib\raylib`：
+默认按本机安装路径 `D:\raylib` 编译：
 
 ```powershell
-gcc src\main.c -std=c11 -O2 -Wall -Wextra -I"C:\raylib\raylib\src" -L"C:\raylib\raylib\src" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
+gcc src\main.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
 .\snake_raylib.exe
 ```
 
 如果 raylib 在其他位置，可以先设置环境变量：
 
 ```powershell
-$env:RAYLIB_PATH="D:\your\path\raylib"
+$env:RAYLIB_PATH="D:\raylib"
 .\build.bat
 ```
 
@@ -69,7 +69,7 @@ cmake --build build
 如果 CMake 找不到 raylib，也可以先设置：
 
 ```powershell
-$env:RAYLIB_PATH="C:\raylib\raylib"
+$env:RAYLIB_PATH="D:\raylib"
 ```
 
 不同编译器的输出路径可能略有差异，例如 Visual Studio 生成器可能在 `build\Debug\snake_raylib.exe`。

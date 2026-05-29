@@ -13,11 +13,13 @@ find_package(raylib 5.0 QUIET)
 if (NOT raylib_FOUND)
     find_path(RAYLIB_INCLUDE_DIR raylib.h
         HINTS
+            "D:/raylib/include"
             "$ENV{RAYLIB_PATH}/src"
             "$ENV{RAYLIB_PATH}/include"
     )
     find_library(RAYLIB_LIBRARY raylib
         HINTS
+            "D:/raylib/lib"
             "$ENV{RAYLIB_PATH}/src"
             "$ENV{RAYLIB_PATH}/lib"
     )
