@@ -1,84 +1,96 @@
-# 贪吃蛇项目
+# 贪吃蛇 Raylib 图形版
 
-这是程序设计综合实践的 C 语言控制台贪吃蛇项目。项目按模块拆分，既可以直接编译运行，也方便 5 名成员分别说明自己负责的代码。
+这是一个使用 C11 + raylib 实现的窗口化单机贪吃蛇游戏。项目不再使用控制台字符界面，主程序为 `src/main.c`，包含完整的图形界面、输入、状态管理、固定时间步进、音效和最高分保存。
 
-## 技术要求
+## 功能
 
-- 整个项目使用 C 语言实现。
-- 源码文件统一使用 `.c` 和 `.h`。
-- 不使用 C++、Python 或其他语言实现核心功能。
-- 编译方式以 GCC 编译 C 源文件为准。
+- 标准贪吃蛇玩法：移动、吃食物、增长、加分
+- 撞墙或撞到自己后游戏结束
+- 支持开始、暂停、继续、重新开始
+- 支持方向键和 `W/A/S/D`
+- `P` 或 `Space` 暂停 / 继续
+- `R` 重新开始
+- 游戏结束后 `Enter` 或按钮重新开始
+- 当前分数、最高分、等级、速度状态显示
+- 分数提升后逐步加快速度
+- 吃到食物时有动画反馈和轻微音效
+- 暂停和游戏结束时有半透明覆盖弹窗
+- 鼠标可点击 Start / Pause / Restart 按钮
 
-## 当前状态
+## UI 设计
 
-- 已实现蛇身移动、方向控制、食物生成、计分、难度变化、碰撞检测和界面绘制。
-- 支持 `W/A/S/D` 和方向键控制移动。
-- 支持暂停、继续、重新开始、退出、失败和胜利状态。
-- 支持历史最高分保存、奖励食物和加速冲刺。
-- 项目保持模块化结构，便于写报告时说明每个人的代码贡献。
+- 默认窗口：`960x720`
+- 深色街机背景 + 轻微网格纹理
+- 棋盘居中展示，带边框、阴影和圆角视觉效果
+- 右侧信息面板显示状态、分数、最高分、等级、速度和按钮
+- 蛇身使用圆角节点和颜色层次
+- 蛇头带眼睛，可看出朝向
+- 食物带发光和脉冲动画
+- 按钮包含 hover 和 pressed 状态
 
-## 项目结构
+## 文件结构
 
 ```text
 tanchishe/
   src/
-    main.c          程序入口和主循环
-    game.c/.h       游戏流程、状态管理、暂停、重开、整合更新
-    snake.c/.h      蛇身数据、移动、增长、方向控制
-    food.c/.h       食物生成、计分、等级和速度调整
-    collision.c/.h  撞墙、撞自身、失败和胜利判断
-    ui.c/.h         控制台绘制、键盘输入、界面刷新
-    config.h        公共游戏常量
-    types.h         公共结构体和枚举
+    main.c          raylib 图形版完整游戏代码
+  CMakeLists.txt    CMake 构建文件
+  build.bat         Windows + gcc + raylib 快速编译脚本
 ```
 
-## 编译运行
+## 编译方式
 
-Windows 下安装 GCC 后运行：
+### 方式一：Windows gcc
+
+假设 raylib 安装在 `C:\raylib\raylib`：
 
 ```powershell
-gcc src\main.c src\game.c src\snake.c src\food.c src\collision.c src\ui.c -o snake.exe
-.\snake.exe
+gcc src\main.c -std=c11 -O2 -Wall -Wextra -I"C:\raylib\raylib\src" -L"C:\raylib\raylib\src" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
+.\snake_raylib.exe
 ```
 
-## 前端显示界面
+如果 raylib 在其他位置，可以先设置环境变量：
 
-项目新增了一个可直接打开的 Web 前端版本，路径为：
-
-```text
-frontend/index.html
+```powershell
+$env:RAYLIB_PATH="D:\your\path\raylib"
+.\build.bat
 ```
 
-这个版本使用 HTML、CSS 和 Canvas 实现，做成电脑端单机游戏窗口：草地棋盘、圆形蛇身、食物高光、分数状态栏、键盘操作提示和本地最高分显示。它用于展示和答辩演示，不替代 C 语言核心代码。
+### 方式二：CMake
+
+系统中已安装 raylib 后：
+
+```powershell
+cmake -S . -B build
+cmake --build build
+.\build\snake_raylib.exe
+```
+
+如果 CMake 找不到 raylib，也可以先设置：
+
+```powershell
+$env:RAYLIB_PATH="C:\raylib\raylib"
+```
+
+不同编译器的输出路径可能略有差异，例如 Visual Studio 生成器可能在 `build\Debug\snake_raylib.exe`。
 
 ## 操作按键
 
 | 按键 | 功能 |
 | --- | --- |
-| `W` | 向上移动 |
-| `A` | 向左移动 |
-| `S` | 向下移动 |
-| `D` | 向右移动 |
 | 方向键 | 控制移动 |
-| `B` 或空格 | 加速冲刺，消耗 1 节蛇身长度 |
+| `W/A/S/D` | 控制移动 |
+| `Space` | 开始、暂停或继续 |
 | `P` | 暂停或继续 |
 | `R` | 重新开始 |
-| `Q` | 退出游戏 |
+| `Enter` | 游戏结束后重新开始 |
 
-## 小组编码分工
+## 最高分
 
-| 成员 | 编码模块 | 主要工作 |
-| --- | --- | --- |
-| 成员1 | 主程序和游戏状态 | `main.c`, `game.c`, `game.h`：初始化、主循环、暂停、重开、退出、状态切换和模块整合 |
-| 成员2 | 蛇身移动和方向控制 | `snake.c`, `snake.h`：蛇身数据结构、蛇头移动、蛇身跟随、方向控制和增长 |
-| 成员3 | 食物、计分和难度 | `food.c`, `food.h`：随机食物、避免与蛇身重合、得分、等级和速度调整 |
-| 成员4 | 碰撞检测和结果判断 | `collision.c`, `collision.h`：撞墙、撞自身、失败判断和胜利判断 |
-| 成员5 | 界面和键盘交互 | `ui.c`, `ui.h`：地图绘制、蛇和食物显示、分数显示、键盘输入和刷新 |
+最高分保存在本地文件：
 
-提交代码前先看 `TASKS.md` 和 `CONTRIBUTING.md`。
+```text
+snake_raylib_highscore.dat
+```
 
-## 优化说明
-
-市场热门贪吃蛇游戏对比和本项目优化点见：
-
-- `docs/热门贪吃蛇游戏差异分析与优化说明.md`
+该文件是运行时生成的本地数据，不需要提交到 GitHub。

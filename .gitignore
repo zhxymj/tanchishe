@@ -1,11 +1,14 @@
 *.exe
+*.dll
 *.obj
 *.o
 *.pdb
 *.ilk
 *.user
 snake_highscore.dat
+snake_raylib_highscore.dat
 .frontend_server.pid
+build/
 .vs/
 x64/
 Debug/
