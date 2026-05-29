@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>贪吃蛇 - 单机版</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="desktop-game">
+      <section class="game-window">
+        <header class="window-bar">
+          <div class="title-group">
+            <span class="game-icon">S</span>
+            <div>
+              <h1>贪吃蛇</h1>
+              <p>单机键盘版</p>
+            </div>
+          </div>
+          <div class="window-actions" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </div>
+        </header>
+
+        <section class="score-strip" aria-label="游戏状态">
+          <div><span>分数</span><strong id="score">0</strong></div>
+          <div><span>最高分</span><strong id="best">0</strong></div>
+          <div><span>等级</span><strong id="level">1</strong></div>
+          <div><span>长度</span><strong id="length">4</strong></div>
+        </section>
+
+        <div class="board-wrap">
+          <canvas id="game" width="900" height="620" aria-label="贪吃蛇游戏画布"></canvas>
+          <div class="message" id="overlay">
+            <strong id="overlayTitle">准备开始</strong>
+            <span id="overlayText">按空格或 Enter 开始游戏</span>
+          </div>
+        </div>
+
+        <footer class="bottom-bar">
+          <div class="keys">
+            <span><b>↑↓←→</b> / <b>WASD</b> 移动</span>
+            <span><b>Space</b> 开始/暂停</span>
+            <span><b>R</b> 重开</span>
+            <span><b>B</b> 冲刺</span>
+          </div>
+          <div class="buttons">
+            <button id="startBtn">开始</button>
+            <button id="pauseBtn">暂停</button>
+            <button id="restartBtn">重开</button>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

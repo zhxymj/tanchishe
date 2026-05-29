@@ -5,6 +5,7 @@
 *.ilk
 *.user
 snake_highscore.dat
+.frontend_server.pid
 .vs/
 x64/
 Debug/

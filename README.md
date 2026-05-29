@@ -41,6 +41,16 @@ gcc src\main.c src\game.c src\snake.c src\food.c src\collision.c src\ui.c -o sna
 .\snake.exe
 ```
 
+## 前端显示界面
+
+项目新增了一个可直接打开的 Web 前端版本，路径为：
+
+```text
+frontend/index.html
+```
+
+这个版本使用 HTML、CSS 和 Canvas 实现，做成电脑端单机游戏窗口：草地棋盘、圆形蛇身、食物高光、分数状态栏、键盘操作提示和本地最高分显示。它用于展示和答辩演示，不替代 C 语言核心代码。
+
 ## 操作按键
 
 | 按键 | 功能 |
