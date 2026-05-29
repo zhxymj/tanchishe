@@ -58,9 +58,20 @@ void ui_cleanup(void) {
 void ui_draw(const Game *game) {
     clear_screen();
 
-    printf("Snake Game | Score: %d | Level: %d | Speed: %dms\n",
-           game->score, game->level, game->speed_ms);
-    printf("Controls: W/A/S/D or Arrow Keys move, P pause, R restart, Q quit\n\n");
+    printf("Snake Game | Score: %d | Best: %d | Level: %d | Speed: %dms | Length: %d\n",
+           game->score,
+           game->best_score,
+           game->level,
+           game->speed_ms,
+           game->snake.length);
+    printf("Controls: W/A/S/D or Arrow Keys move, B boost, P pause, R restart, Q quit\n");
+    printf("Food: * normal +%d, $ bonus +%d | Boost costs 1 length",
+           POINTS_PER_FOOD,
+           POINTS_PER_BONUS_FOOD);
+    if (game->boost_ticks > 0) {
+        printf(" | Boost active: %d", game->boost_ticks);
+    }
+    printf("\n\n");
 
     for (int y = -1; y <= BOARD_HEIGHT; y++) {
         for (int x = -1; x <= BOARD_WIDTH; x++) {
@@ -71,7 +82,7 @@ void ui_draw(const Game *game) {
             } else if (is_snake_cell(&game->snake, x, y, &is_head)) {
                 putchar(is_head ? '@' : 'o');
             } else if (game->food.position.x == x && game->food.position.y == y) {
-                putchar('*');
+                putchar(game->food.type == FOOD_BONUS ? '$' : '*');
             } else {
                 putchar(' ');
             }

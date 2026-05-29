@@ -21,7 +21,7 @@ int main(void) {
 
         game_update(&game);
         ui_draw(&game);
-        ui_sleep(game.speed_ms);
+        ui_sleep(game_current_delay(&game));
     }
 
     ui_cleanup();

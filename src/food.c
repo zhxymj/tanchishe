@@ -15,6 +15,7 @@ void food_spawn(Food *food, const Snake *snake) {
     }
 
     selected_empty = rand() % empty_count;
+    food->type = (rand() % BONUS_FOOD_CHANCE == 0) ? FOOD_BONUS : FOOD_NORMAL;
 
     for (int y = 0; y < BOARD_HEIGHT; y++) {
         for (int x = 0; x < BOARD_WIDTH; x++) {
@@ -40,8 +41,11 @@ int food_is_eaten(const Food *food, Point head) {
 
 void food_apply_score(Game *game) {
     int old_level = game->level;
+    int points = (game->food.type == FOOD_BONUS)
+                     ? POINTS_PER_BONUS_FOOD
+                     : POINTS_PER_FOOD;
 
-    game->score += POINTS_PER_FOOD;
+    game->score += points;
     game->level = game->score / LEVEL_SCORE_STEP + 1;
 
     if (game->level > old_level && game->speed_ms > MIN_SPEED_MS) {

@@ -10,6 +10,11 @@
 #define MIN_SPEED_MS 60
 #define SPEED_STEP_MS 10
 #define POINTS_PER_FOOD 10
+#define POINTS_PER_BONUS_FOOD 30
 #define LEVEL_SCORE_STEP 50
+#define BONUS_FOOD_CHANCE 5
+#define BOOST_TICKS 25
+#define BOOST_SPEED_DELTA_MS 70
+#define HIGH_SCORE_FILE "snake_highscore.dat"
 
 #endif

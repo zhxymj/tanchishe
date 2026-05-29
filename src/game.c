@@ -5,8 +5,43 @@
 #include "snake.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+static int load_high_score(void) {
+    FILE *file = fopen(HIGH_SCORE_FILE, "r");
+    int high_score = 0;
+
+    if (file == NULL) {
+        return 0;
+    }
+
+    if (fscanf(file, "%d", &high_score) != 1 || high_score < 0) {
+        high_score = 0;
+    }
+
+    fclose(file);
+    return high_score;
+}
+
+static void save_high_score(int high_score) {
+    FILE *file = fopen(HIGH_SCORE_FILE, "w");
+
+    if (file == NULL) {
+        return;
+    }
+
+    fprintf(file, "%d\n", high_score);
+    fclose(file);
+}
+
+static void update_high_score(Game *game) {
+    if (game->score > game->best_score) {
+        game->best_score = game->score;
+        save_high_score(game->best_score);
+    }
+}
 
 void game_init(Game *game) {
     static int seeded = 0;
@@ -18,8 +53,10 @@ void game_init(Game *game) {
 
     snake_init(&game->snake);
     game->score = 0;
+    game->best_score = load_high_score();
     game->level = 1;
     game->speed_ms = INITIAL_SPEED_MS;
+    game->boost_ticks = 0;
     game->status = GAME_RUNNING;
     food_spawn(&game->food, &game->snake);
 }
@@ -47,6 +84,14 @@ void game_handle_key(Game *game, int key) {
     }
 
     if (game->status != GAME_RUNNING) {
+        return;
+    }
+
+    if ((key == 'b' || key == ' ') && game->boost_ticks == 0) {
+        if (game->snake.length > INITIAL_SNAKE_LENGTH) {
+            game->snake.length--;
+            game->boost_ticks = BOOST_TICKS;
+        }
         return;
     }
 
@@ -80,6 +125,7 @@ void game_update(Game *game) {
     if (collision_hits_wall(next_head) ||
         collision_hits_self(&game->snake, next_head, grow)) {
         game->status = GAME_OVER;
+        update_high_score(game);
         return;
     }
 
@@ -87,11 +133,31 @@ void game_update(Game *game) {
 
     if (grow) {
         food_apply_score(game);
+        update_high_score(game);
 
         if (collision_is_victory(&game->snake)) {
             game->status = GAME_VICTORY;
+            update_high_score(game);
         } else {
             food_spawn(&game->food, &game->snake);
         }
     }
+
+    if (game->boost_ticks > 0) {
+        game->boost_ticks--;
+    }
+}
+
+int game_current_delay(const Game *game) {
+    int delay = game->speed_ms;
+
+    if (game->boost_ticks > 0) {
+        delay -= BOOST_SPEED_DELTA_MS;
+    }
+
+    if (delay < MIN_SPEED_MS / 2) {
+        delay = MIN_SPEED_MS / 2;
+    }
+
+    return delay;
 }

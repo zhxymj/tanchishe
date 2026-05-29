@@ -4,6 +4,7 @@
 *.pdb
 *.ilk
 *.user
+snake_highscore.dat
 .vs/
 x64/
 Debug/

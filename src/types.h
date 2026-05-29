@@ -23,6 +23,11 @@ typedef struct {
     int y;
 } Point;
 
+typedef enum {
+    FOOD_NORMAL,
+    FOOD_BONUS
+} FoodType;
+
 typedef struct {
     Point body[MAX_CELLS];
     int length;
@@ -32,14 +37,17 @@ typedef struct {
 
 typedef struct {
     Point position;
+    FoodType type;
 } Food;
 
 typedef struct {
     Snake snake;
     Food food;
     int score;
+    int best_score;
     int level;
     int speed_ms;
+    int boost_ticks;
     GameStatus status;
 } Game;
 
