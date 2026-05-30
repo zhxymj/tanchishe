@@ -1,8 +1,8 @@
 /*
  * Snake Arcade - raylib single-player snake game
  * Build example on Windows:
- *   gcc src/main.c -std=c11 -O2 -Wall -Wextra -I"C:/raylib/raylib/src" \
- *       -L"C:/raylib/raylib/src" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
+ *   gcc src/main.c -std=c11 -O2 -Wall -Wextra -I"D:/raylib/include" \
+ *       -L"D:/raylib/lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
  */
 
 #include "raylib.h"

@@ -66,6 +66,8 @@ cmake --build build
 .\build\snake_raylib.exe
 ```
 
+如果项目所在路径包含中文字符，部分 Windows 版 `ninja` 或 `mingw32-make` 可能无法解析 CMake 生成的绝对路径。遇到这种情况时，优先使用 `.\build.bat`，或者把仓库移动到纯英文路径后再使用 CMake，例如 `D:\code\tanchishe`。
+
 如果 CMake 找不到 raylib，也可以先设置：
 
 ```powershell
