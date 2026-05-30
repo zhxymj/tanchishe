@@ -145,7 +145,7 @@ def build():
 
     add_title(doc)
     add_heading(doc, "一、项目当前状态", 1)
-    add_body(doc, "本项目已经从控制台字符版调整为 C11 + raylib 图形化单机贪吃蛇。核心代码集中在 src/main.c，配套 build.bat、CMakeLists.txt 和 README.md。")
+    add_body(doc, "本项目已经从控制台字符版调整为 C11 + raylib 图形化单机贪吃蛇。当前代码拆分为 main、game、snake、food、ui 五个模块，配套 build.bat、CMakeLists.txt 和 README.md。")
     add_table(
         doc,
         [
@@ -160,14 +160,14 @@ def build():
     )
 
     add_heading(doc, "二、统一开发流程", 1)
-    add_body(doc, "每次写代码前先同步，写完后先编译，再提交。由于 src/main.c 是单文件实现，成员之间要按函数区域协作。")
+    add_body(doc, "每次写代码前先同步，写完后先编译，再提交。当前代码已经拆分为 main、game、snake、food、ui 五个模块，成员之间按文件协作。")
     add_code(
         doc,
         r"""
 git pull origin main
 .\build.bat
-git diff src\main.c
-git add src\main.c
+git diff
+git add src\自己负责的文件.c src\自己负责的文件.h
 git commit -m "说明本次完成的功能"
 git push origin main
 """,
@@ -177,7 +177,7 @@ git push origin main
         (
             "三、成员1：主程序框架与状态管理",
             "窗口初始化、游戏初始化、状态切换、暂停继续、重开和固定时间步进。",
-            "main, InitGame, ResetGame, StartOrResumeGame, TogglePause, UpdateGame",
+            "src/main.c, src/game.c, src/game.h",
             [
                 "确认窗口大小、帧率和音频设备初始化正确。",
                 "维护开始前、运行中、暂停、游戏结束四种状态。",
@@ -189,7 +189,7 @@ git push origin main
         (
             "四、成员2：蛇身移动与碰撞规则",
             "蛇身数据、方向控制、禁止反向、移动增长、撞墙和撞自身。",
-            "Snake, QueueDirection, MoveSnake, NextHead, SameCell, SnakeContains",
+            "src/snake.c, src/snake.h",
             [
                 "维护 body[0] 为蛇头、后续元素为蛇身的约定。",
                 "处理方向键和 WASD 传入后的方向队列。",
@@ -201,7 +201,7 @@ git push origin main
         (
             "五、成员3：食物、计分、难度和最高分",
             "食物刷新、得分、速度等级、最高分文件和食物视觉反馈。",
-            "Food, SpawnFood, DrawFood, UpdateDifficulty, LoadHighScore, SaveHighScore",
+            "src/food.c, src/food.h",
             [
                 "保证食物随机生成在棋盘内部。",
                 "避免食物生成在蛇身上。",
@@ -214,7 +214,7 @@ git push origin main
         (
             "六、成员4：棋盘、蛇身和背景视觉",
             "现代街机风格背景、棋盘边界、网格、蛇身层次和蛇头方向表现。",
-            "DrawBackground, DrawHeader, DrawBoardFrame, DrawBoardGrid, DrawSnake, DrawSnakeEyes",
+            "src/ui.c, src/ui.h 中的绘制函数",
             [
                 "保持 960x720 下棋盘和面板不重叠。",
                 "绘制深色背景、轻微网格和棋盘阴影。",
@@ -226,7 +226,7 @@ git push origin main
         (
             "七、成员5：面板、按钮、弹窗和构建说明",
             "鼠标按钮、右侧信息面板、暂停/结束弹窗、文字适配和构建脚本。",
-            "HandleButtons, ActivateButton, DrawSidePanel, DrawButton, DrawOverlay, DrawTextFit, ButtonLabel, build.bat, CMakeLists.txt",
+            "build.bat, CMakeLists.txt, README.md, TASKS.md, CONTRIBUTING.md，并配合维护 src/ui.c 的按钮区域",
             [
                 "维护 Start、Pause、Restart 按钮的 hover 和 pressed 状态。",
                 "绘制分数、最高分、等级、速度和状态面板。",

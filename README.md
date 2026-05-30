@@ -1,39 +1,43 @@
 # 贪吃蛇 Raylib 图形版
 
-这是一个使用 C11 + raylib 实现的窗口化单机贪吃蛇游戏。项目不再使用控制台字符界面，主程序为 `src/main.c`，包含完整的图形界面、输入、状态管理、固定时间步进、音效和最高分保存。
+这是一个使用 C11 + raylib 实现的窗口化单机贪吃蛇游戏。项目保持 `960x720` 默认窗口，不使用控制台字符界面、不做网页前端、不做多人联网。
 
 ## 功能
 
 - 标准贪吃蛇玩法：移动、吃食物、增长、加分
 - 撞墙或撞到自己后游戏结束
-- 支持开始、暂停、继续、重新开始
+- 开始菜单：Start、Difficulty、Quit
+- 难度选择：Easy、Normal、Hard，不同初始速度和加速曲线
+- 支持开始、暂停、继续、重新开始、返回菜单
 - 支持方向键和 `W/A/S/D`
 - `P` 或 `Space` 暂停 / 继续
-- `R` 重新开始
-- 游戏结束后 `Enter` 或按钮重新开始
+- `R` 重新开始，`M` 返回菜单，`Tab` 在菜单中切换难度
 - 当前分数、最高分、等级、速度状态显示
-- 分数提升后逐步加快速度
-- 吃到食物时有动画反馈和轻微音效
-- 暂停和游戏结束时有半透明覆盖弹窗
-- 鼠标可点击 Start / Pause / Restart 按钮
+- 支持音效开关和最高分重置按钮
+- 吃到食物时有发光、粒子和分数缩放反馈
+- 暂停和游戏结束时有半透明淡入弹窗
+- 鼠标可点击菜单、面板和弹窗按钮
 
 ## UI 设计
 
-- 默认窗口：`960x720`
 - 深色街机背景 + 轻微网格纹理
 - 棋盘居中展示，带边框、阴影和圆角视觉效果
-- 右侧信息面板显示状态、分数、最高分、等级、速度和按钮
+- 右侧信息面板显示状态、难度、分数、最高分、等级、速度和功能按钮
 - 蛇身使用圆角节点和颜色层次
 - 蛇头带眼睛，可看出朝向
-- 食物带发光和脉冲动画
-- 按钮包含 hover 和 pressed 状态
+- 食物带发光、脉冲动画和吃到后的粒子扩散
+- 按钮包含 hover、pressed 和轻微位移动画
 
 ## 文件结构
 
 ```text
 tanchishe/
   src/
-    main.c          raylib 图形版完整游戏代码
+    main.c          程序入口和主循环
+    game.c/.h       游戏状态、更新、重开、暂停、分数、速度、音效开关
+    snake.c/.h      蛇身数据、方向、移动、增长、撞墙和撞自身
+    food.c/.h       食物生成、动画、得分反馈和粒子效果
+    ui.c/.h         背景、棋盘、面板、按钮、菜单和弹窗绘制
   CMakeLists.txt    CMake 构建文件
   build.bat         Windows + gcc + raylib 快速编译脚本
 ```
@@ -45,8 +49,14 @@ tanchishe/
 默认按本机安装路径 `D:\raylib` 编译：
 
 ```powershell
-gcc src\main.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
+gcc src\main.c src\game.c src\snake.c src\food.c src\ui.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
 .\snake_raylib.exe
+```
+
+也可以直接运行：
+
+```powershell
+.\build.bat
 ```
 
 如果 raylib 在其他位置，可以先设置环境变量：
@@ -58,8 +68,6 @@ $env:RAYLIB_PATH="D:\raylib"
 
 ### 方式二：CMake
 
-系统中已安装 raylib 后：
-
 ```powershell
 cmake -S . -B build
 cmake --build build
@@ -67,14 +75,6 @@ cmake --build build
 ```
 
 如果项目所在路径包含中文字符，部分 Windows 版 `ninja` 或 `mingw32-make` 可能无法解析 CMake 生成的绝对路径。遇到这种情况时，优先使用 `.\build.bat`，或者把仓库移动到纯英文路径后再使用 CMake，例如 `D:\code\tanchishe`。
-
-如果 CMake 找不到 raylib，也可以先设置：
-
-```powershell
-$env:RAYLIB_PATH="D:\raylib"
-```
-
-不同编译器的输出路径可能略有差异，例如 Visual Studio 生成器可能在 `build\Debug\snake_raylib.exe`。
 
 ## 操作按键
 
@@ -85,7 +85,9 @@ $env:RAYLIB_PATH="D:\raylib"
 | `Space` | 开始、暂停或继续 |
 | `P` | 暂停或继续 |
 | `R` | 重新开始 |
-| `Enter` | 游戏结束后重新开始 |
+| `Enter` | 菜单 / 暂停 / 游戏结束时确认 |
+| `Tab` | 在菜单或结束界面切换难度 |
+| `M` | 返回主菜单 |
 
 ## 最高分
 

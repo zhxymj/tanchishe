@@ -29,7 +29,13 @@ if (NOT raylib_FOUND)
     endif()
 endif()
 
-add_executable(snake_raylib src/main.c)
+add_executable(snake_raylib
+    src/main.c
+    src/game.c
+    src/snake.c
+    src/food.c
+    src/ui.c
+)
 
 if (raylib_FOUND)
     target_link_libraries(snake_raylib PRIVATE raylib)

@@ -102,7 +102,7 @@ def build_story(st):
 """, st))
     story.append(p("只想编译、不想通过脚本启动时运行：", st["Body"]))
     story.append(code(r"""
-gcc src\main.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
+gcc src\main.c src\game.c src\snake.c src\food.c src\ui.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
 .\snake_raylib.exe
 """, st))
     story.append(p("如果使用 CMake，建议把仓库放在纯英文路径，例如 D:\\code\\tanchishe；当前中文路径下部分 Windows make/ninja 可能无法解析绝对路径。", st["Body"]))
@@ -112,11 +112,11 @@ gcc src\main.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib
         table(
             [
                 ["成员", "负责内容"],
-                ["成员1", "main、InitGame、ResetGame、StartOrResumeGame、TogglePause、UpdateGame：主流程和状态管理"],
-                ["成员2", "Snake、QueueDirection、MoveSnake、NextHead、SameCell、SnakeContains：蛇身移动和碰撞"],
-                ["成员3", "Food、SpawnFood、DrawFood、UpdateDifficulty、LoadHighScore、SaveHighScore：食物、计分和最高分"],
-                ["成员4", "DrawBackground、DrawHeader、DrawBoardFrame、DrawBoardGrid、DrawSnake、DrawSnakeEyes：主要视觉绘制"],
-                ["成员5", "HandleButtons、DrawSidePanel、DrawButton、DrawOverlay、DrawTextFit、ButtonLabel、build.bat、CMakeLists.txt：交互、弹窗和构建"],
+                ["成员1", "src/main.c、src/game.c、src/game.h：主流程、状态、暂停、重开、速度、音效和最高分"],
+                ["成员2", "src/snake.c、src/snake.h：蛇身移动、方向、增长、撞墙和撞自身"],
+                ["成员3", "src/food.c、src/food.h：食物生成、得分反馈、粒子和食物绘制"],
+                ["成员4", "src/ui.c、src/ui.h：背景、棋盘、蛇身、面板、菜单和弹窗绘制"],
+                ["成员5", "build.bat、CMakeLists.txt、README.md、TASKS.md、CONTRIBUTING.md，并配合维护按钮区域"],
             ],
             [2.0 * cm, 13.2 * cm],
             st,
@@ -132,12 +132,12 @@ git pull origin main
     story.append(bullet("如果已有本地修改，先提交或 stash，再 pull。", st))
 
     story += section("5. 提交代码", st)
-    story.append(p("由于核心代码集中在 src/main.c，提交前必须确认自己只改了负责的函数区域。", st["Body"]))
+    story.append(p("当前代码已经拆分为 main、game、snake、food、ui 五个模块，提交前必须确认自己只改了负责文件。", st["Body"]))
     story.append(code(r"""
 git status
-git diff src\main.c
+git diff
 .\build.bat
-git add src\main.c
+git add src\自己负责的文件.c src\自己负责的文件.h
 git commit -m "完成某某功能"
 git push origin main
 """, st))
