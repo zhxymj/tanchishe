@@ -102,7 +102,7 @@ def build_story(st):
 """, st))
     story.append(p("只想编译、不想通过脚本启动时运行：", st["Body"]))
     story.append(code(r"""
-gcc src\main.c src\game.c src\snake.c src\food.c src\ui.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
+gcc src\main.c src\game.c src\snake.c src\food.c src\ui.c src\controls.c -std=c11 -O2 -Wall -Wextra -I"D:\raylib\include" -L"D:\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm -o snake_raylib.exe
 .\snake_raylib.exe
 """, st))
     story.append(p("如果使用 CMake，建议把仓库放在纯英文路径，例如 D:\\code\\tanchishe；当前中文路径下部分 Windows make/ninja 可能无法解析绝对路径。", st["Body"]))
@@ -116,7 +116,7 @@ gcc src\main.c src\game.c src\snake.c src\food.c src\ui.c -std=c11 -O2 -Wall -We
                 ["成员2", "src/snake.c、src/snake.h：蛇身移动、方向、增长、撞墙和撞自身"],
                 ["成员3", "src/food.c、src/food.h：食物生成、得分反馈、粒子和食物绘制"],
                 ["成员4", "src/ui.c、src/ui.h：背景、棋盘、蛇身、面板、菜单和弹窗绘制"],
-                ["成员5", "build.bat、CMakeLists.txt、README.md、TASKS.md、CONTRIBUTING.md，并配合维护按钮区域"],
+                ["成员5", "src/controls.c、src/controls.h、build.bat、CMakeLists.txt 和说明文档：按钮交互和构建说明"],
             ],
             [2.0 * cm, 13.2 * cm],
             st,
@@ -132,7 +132,7 @@ git pull origin main
     story.append(bullet("如果已有本地修改，先提交或 stash，再 pull。", st))
 
     story += section("5. 提交代码", st)
-    story.append(p("当前代码已经拆分为 main、game、snake、food、ui 五个模块，提交前必须确认自己只改了负责文件。", st["Body"]))
+    story.append(p("当前代码已经拆分为 main、game、snake、food、ui、controls 等模块，提交前必须确认自己只改了负责文件。", st["Body"]))
     story.append(code(r"""
 git status
 git diff

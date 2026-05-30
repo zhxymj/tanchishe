@@ -145,7 +145,7 @@ def build():
 
     add_title(doc)
     add_heading(doc, "一、项目当前状态", 1)
-    add_body(doc, "本项目已经从控制台字符版调整为 C11 + raylib 图形化单机贪吃蛇。当前代码拆分为 main、game、snake、food、ui 五个模块，配套 build.bat、CMakeLists.txt 和 README.md。")
+    add_body(doc, "本项目已经从控制台字符版调整为 C11 + raylib 图形化单机贪吃蛇。当前代码拆分为 main、game、snake、food、ui、controls 等模块，配套 build.bat、CMakeLists.txt 和 README.md。")
     add_table(
         doc,
         [
@@ -160,7 +160,7 @@ def build():
     )
 
     add_heading(doc, "二、统一开发流程", 1)
-    add_body(doc, "每次写代码前先同步，写完后先编译，再提交。当前代码已经拆分为 main、game、snake、food、ui 五个模块，成员之间按文件协作。")
+    add_body(doc, "每次写代码前先同步，写完后先编译，再提交。当前代码已经拆分为 main、game、snake、food、ui、controls 等模块，成员之间按文件协作。")
     add_code(
         doc,
         r"""
@@ -226,7 +226,7 @@ git push origin main
         (
             "七、成员5：面板、按钮、弹窗和构建说明",
             "鼠标按钮、右侧信息面板、暂停/结束弹窗、文字适配和构建脚本。",
-            "build.bat, CMakeLists.txt, README.md, TASKS.md, CONTRIBUTING.md，并配合维护 src/ui.c 的按钮区域",
+            "src/controls.c, src/controls.h, build.bat, CMakeLists.txt, README.md, TASKS.md, CONTRIBUTING.md",
             [
                 "维护 Start、Pause、Restart 按钮的 hover 和 pressed 状态。",
                 "绘制分数、最高分、等级、速度和状态面板。",

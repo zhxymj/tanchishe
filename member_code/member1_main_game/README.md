@@ -1,0 +1,26 @@
+# 成员1：程序入口和游戏状态
+
+## 负责文件
+
+- `main.c`
+- `game.c`
+- `game.h`
+
+## 主要任务
+
+- 初始化 raylib 窗口、音频和游戏数据。
+- 维护主循环和固定时间步进。
+- 管理主菜单、运行中、暂停、游戏结束状态。
+- 处理开始、暂停、继续、重开、返回菜单。
+- 管理分数、等级、速度、最高分和音效开关。
+
+## 需要说明的核心函数
+
+- `main`
+- `GameInit`
+- `GameStart`
+- `GameRestart`
+- `GameTogglePause`
+- `GameUpdate`
+- `GameActivateButton`
+- `GameSaveHighScore`
