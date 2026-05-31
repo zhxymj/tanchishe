@@ -30,6 +30,10 @@
 #define HIGH_SCORE_FILE "snake_raylib_highscore.dat"
 
 #define MAX_FOOD_PARTICLES 36
+#define MENU_BUTTON_COUNT 5
+#define SIDE_BUTTON_COUNT 4
+#define OVERLAY_BUTTON_COUNT 2
+#define EAT_RING_LIFE 0.42f
 
 typedef enum {
     STATE_MENU,
@@ -118,16 +122,19 @@ typedef struct {
     float minMoveInterval;
     float speedStep;
     float moveTimer;
+    float runTime;
     float eatFeedback;
+    float eatRingTimer;
     float gameOverTimer;
     float overlayAlpha;
     float scorePulse;
+    Vector2 lastEatCenter;
     bool soundEnabled;
     bool shouldQuit;
     FoodParticle particles[MAX_FOOD_PARTICLES];
-    UIButton menuButtons[3];
-    UIButton sideButtons[4];
-    UIButton overlayButtons[2];
+    UIButton menuButtons[MENU_BUTTON_COUNT];
+    UIButton sideButtons[SIDE_BUTTON_COUNT];
+    UIButton overlayButtons[OVERLAY_BUTTON_COUNT];
 } Game;
 
 void SoundsInit(SoundPack *sounds);

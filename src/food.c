@@ -4,6 +4,8 @@
 
 #include <math.h>
 
+#define FOOD_PARTICLE_BURST 24
+
 static Vector2 CellCenter(Cell cell);
 static void EmitFoodParticles(Game *game, Vector2 center);
 
@@ -52,10 +54,12 @@ void FoodUpdate(Game *game, float dt) {
 }
 
 void FoodOnEaten(Game *game) {
+    game->lastEatCenter = CellCenter(game->food.position);
     game->score += SCORE_PER_FOOD;
     game->eatFeedback = 0.24f;
+    game->eatRingTimer = EAT_RING_LIFE;
     game->scorePulse = 0.28f;
-    EmitFoodParticles(game, CellCenter(game->food.position));
+    EmitFoodParticles(game, game->lastEatCenter);
 }
 
 void FoodDraw(const Game *game) {
@@ -71,11 +75,22 @@ void FoodDraw(const Game *game) {
         DrawCircleV(particle->position, particle->radius * (1.0f + t * 1.4f), color);
     }
 
+    if (game->eatRingTimer > 0.0f) {
+        float progress = 1.0f - game->eatRingTimer / EAT_RING_LIFE;
+        float alpha = (1.0f - progress) * 170.0f;
+        float radius = 12.0f + progress * 34.0f;
+        DrawCircleGradient(game->lastEatCenter, radius + 10.0f, (Color){255, 228, 130, (unsigned char)(alpha * 0.32f)},
+                           (Color){255, 228, 130, 0});
+        DrawRing(game->lastEatCenter, radius, radius + 3.2f, 0.0f, 360.0f, 36,
+                 (Color){255, 231, 128, (unsigned char)alpha});
+    }
+
     float pulse = 1.0f + sinf(game->food.pulse) * 0.12f + game->eatFeedback * 0.7f;
     Vector2 center = CellCenter(game->food.position);
     float radius = 6.5f * pulse;
 
-    DrawCircleGradient(center, 20.0f * pulse, (Color){255, 88, 116, 86}, (Color){255, 88, 116, 0});
+    DrawCircleGradient(center, 24.0f * pulse, (Color){255, 88, 116, 108}, (Color){255, 88, 116, 0});
+    DrawCircleGradient(center, 13.0f * pulse, (Color){255, 205, 118, 125}, (Color){255, 88, 116, 0});
     DrawCircleV(center, radius, (Color){255, 88, 116, 255});
     DrawCircleV((Vector2){center.x - radius * 0.32f, center.y - radius * 0.35f}, radius * 0.28f,
                 (Color){255, 230, 235, 225});
@@ -89,8 +104,8 @@ static Vector2 CellCenter(Cell cell) {
 }
 
 static void EmitFoodParticles(Game *game, Vector2 center) {
-    for (int i = 0; i < MAX_FOOD_PARTICLES; i++) {
-        FoodParticle *particle = &game->particles[i];
+    for (int i = 0; i < FOOD_PARTICLE_BURST; i++) {
+        FoodParticle *particle = &game->particles[i % MAX_FOOD_PARTICLES];
         float angle = (float)GetRandomValue(0, 359) * DEG2RAD;
         float speed = (float)GetRandomValue(45, 125);
 

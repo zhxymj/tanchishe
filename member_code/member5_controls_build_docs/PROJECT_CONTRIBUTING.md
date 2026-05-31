@@ -58,4 +58,5 @@ git push origin main
 - 不要提交 `snake_raylib.exe`、`build/`、最高分数据文件等运行产物。
 - 提交前必须至少编译一次。
 - 修改公共结构 `src/game.h` 前先确认其他模块是否受影响。
+- 修改按钮数量时，需要同时更新 `MENU_BUTTON_COUNT`、`ControlsInit`、`ControlsUpdate` 和 UI 绘制循环。
 - 如果多人同时修改公共头文件 `src/game.h` 产生冲突，保留双方有效代码后再提交。

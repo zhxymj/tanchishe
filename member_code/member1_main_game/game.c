@@ -170,6 +170,13 @@ void GameUpdate(Game *game, SoundPack *sounds, float dt) {
         }
     }
 
+    if (game->eatRingTimer > 0.0f) {
+        game->eatRingTimer -= dt;
+        if (game->eatRingTimer < 0.0f) {
+            game->eatRingTimer = 0.0f;
+        }
+    }
+
     if (game->scorePulse > 0.0f) {
         game->scorePulse -= dt;
         if (game->scorePulse < 0.0f) {
@@ -187,6 +194,7 @@ void GameUpdate(Game *game, SoundPack *sounds, float dt) {
         return;
     }
 
+    game->runTime += dt;
     game->moveTimer += dt;
     while (game->moveTimer >= game->moveInterval) {
         game->moveTimer -= game->moveInterval;
@@ -299,9 +307,12 @@ static void ResetRound(Game *game, GameState state) {
     game->score = 0;
     game->level = 1;
     game->moveTimer = 0.0f;
+    game->runTime = 0.0f;
     game->eatFeedback = 0.0f;
+    game->eatRingTimer = 0.0f;
     game->scorePulse = 0.0f;
     game->gameOverTimer = 0.0f;
+    game->lastEatCenter = (Vector2){BOARD_X + BOARD_W * 0.5f, BOARD_Y + BOARD_H * 0.5f};
     memset(game->particles, 0, sizeof(game->particles));
     FoodSpawn(game);
     game->state = state;
