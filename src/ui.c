@@ -5,22 +5,22 @@
 #include <math.h>
 #include <stdio.h>
 
-static const Color C_BG_TOP = {17, 22, 36, 255};
-static const Color C_BG_BOTTOM = {40, 47, 67, 255};
-static const Color C_PANEL = {30, 36, 53, 236};
-static const Color C_SURFACE = {21, 27, 42, 238};
-static const Color C_SURFACE_LIGHT = {42, 50, 70, 228};
-static const Color C_LINE = {106, 125, 160, 80};
+static const Color C_BG_TOP = {12, 18, 31, 255};
+static const Color C_BG_BOTTOM = {27, 35, 53, 255};
+static const Color C_PANEL = {23, 29, 44, 238};
+static const Color C_SURFACE = {16, 22, 35, 240};
+static const Color C_SURFACE_LIGHT = {34, 42, 60, 224};
+static const Color C_LINE = {110, 130, 160, 74};
 static const Color C_TEXT = {239, 244, 255, 255};
-static const Color C_MUTED = {165, 176, 197, 255};
-static const Color C_ACCENT = {100, 232, 151, 255};
-static const Color C_BLUE = {72, 178, 255, 255};
-static const Color C_ORANGE = {255, 184, 76, 255};
-static const Color C_MAGENTA = {255, 92, 166, 255};
-static const Color C_YELLOW = {255, 224, 108, 255};
-static const Color C_DANGER = {255, 105, 105, 255};
-static const Color C_BOARD_A = {35, 53, 58, 255};
-static const Color C_BOARD_B = {30, 46, 53, 255};
+static const Color C_MUTED = {154, 166, 188, 255};
+static const Color C_ACCENT = {92, 225, 162, 255};
+static const Color C_BLUE = {80, 160, 238, 255};
+static const Color C_ORANGE = {244, 181, 92, 255};
+static const Color C_MAGENTA = {226, 96, 170, 255};
+static const Color C_YELLOW = {245, 211, 118, 255};
+static const Color C_DANGER = {236, 96, 106, 255};
+static const Color C_BOARD_A = {24, 39, 43, 255};
+static const Color C_BOARD_B = {21, 34, 39, 255};
 
 static const char *UI_FONT_PATH = "C:/Windows/Fonts/simhei.ttf";
 static const char *UI_FONT_CHARS =
@@ -45,6 +45,7 @@ static void DrawTextFit(const char *text, Rectangle rect, int fontSize, Color co
 static void DrawInfoTile(const char *label, const char *value, Rectangle rect, Color accent);
 static void DrawPill(const char *text, Rectangle rect, Color accent);
 static void DrawMiniDivider(Rectangle rect);
+static void DrawCornerTicks(Rectangle rect, float size, Color color);
 static void DrawTitleSnakeMark(Vector2 origin, float time);
 static Vector2 BoardCellCenter(Cell cell);
 static Color ButtonBaseColor(ButtonId id);
@@ -77,20 +78,25 @@ static void DrawBackground(void) {
     float drift = fmodf(time * 14.0f, 64.0f);
 
     DrawRectangleGradientV(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, C_BG_TOP, C_BG_BOTTOM);
+    DrawRectangleGradientV(0, 0, WINDOW_WIDTH, 210, (Color){57, 104, 160, 42}, (Color){57, 104, 160, 0});
+    DrawRectangleGradientV(0, WINDOW_HEIGHT - 240, WINDOW_WIDTH, 240, (Color){7, 10, 17, 0}, (Color){7, 10, 17, 100});
 
     for (int x = -64; x < WINDOW_WIDTH + 64; x += 32) {
-        DrawLine(x + (int)drift, 0, x + (int)drift, WINDOW_HEIGHT, (Color){255, 255, 255, 10});
+        DrawLine(x + (int)drift, 0, x + (int)drift, WINDOW_HEIGHT, (Color){255, 255, 255, 8});
     }
     for (int y = -64; y < WINDOW_HEIGHT + 64; y += 32) {
-        DrawLine(0, y + (int)(drift * 0.55f), WINDOW_WIDTH, y + (int)(drift * 0.55f), (Color){255, 255, 255, 9});
+        DrawLine(0, y + (int)(drift * 0.55f), WINDOW_WIDTH, y + (int)(drift * 0.55f), (Color){255, 255, 255, 7});
     }
-    for (int i = -WINDOW_HEIGHT; i < WINDOW_WIDTH; i += 48) {
+    for (int i = -WINDOW_HEIGHT; i < WINDOW_WIDTH; i += 56) {
         DrawLineEx((Vector2){(float)i + drift * 0.35f, 0.0f},
                    (Vector2){(float)(i + WINDOW_HEIGHT) + drift * 0.35f, (float)WINDOW_HEIGHT}, 1.0f,
-                   (Color){120, 230, 190, 8});
+                   (Color){120, 230, 190, 7});
     }
 
-    DrawRectangleGradientV(0, 0, WINDOW_WIDTH, 170, (Color){89, 158, 255, 38}, (Color){89, 158, 255, 0});
+    for (int y = 138; y < WINDOW_HEIGHT; y += 96) {
+        DrawLineEx((Vector2){42.0f, (float)y}, (Vector2){WINDOW_WIDTH - 42.0f, (float)y + 34.0f}, 1.0f,
+                   (Color){144, 188, 255, 8});
+    }
 }
 
 static void DrawHeader(void) {
@@ -99,6 +105,9 @@ static void DrawHeader(void) {
 
     DrawRoundedPanel(header, 0.18f, C_PANEL, C_LINE);
     DrawRectangleRounded((Rectangle){header.x + 14, header.y + 14, 5, header.height - 28}, 0.6f, 8, C_ACCENT);
+    DrawRectangleRounded((Rectangle){header.x + 28, header.y + 16, header.width - 56, 1.0f}, 0.5f, 4,
+                         (Color){255, 255, 255, 38});
+    DrawCornerTicks(header, 18.0f, (Color){176, 220, 255, 72});
 
     DrawTitleSnakeMark((Vector2){84.0f, 65.0f}, time);
     DrawUIText("贪吃蛇", 134, 48, 34, C_TEXT);
@@ -126,6 +135,8 @@ static void DrawBoardFrame(void) {
                          (Color){16, 23, 34, 236});
     DrawRectangleRoundedLinesEx((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 0.05f, 14, 2.0f,
                                 (Color){122, 151, 184, 112});
+    DrawCornerTicks((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 22.0f,
+                    (Color){190, 246, 224, 118});
     DrawRectangleRounded(board, 0.03f, 10, C_BOARD_A);
 }
 
@@ -139,14 +150,17 @@ static void DrawBoardGrid(void) {
 
     for (int x = 0; x <= BOARD_COLS; x++) {
         int px = BOARD_X + x * CELL_SIZE;
-        DrawLine(px, BOARD_Y, px, BOARD_Y + BOARD_H, (Color){255, 255, 255, x % 5 == 0 ? 18 : 8});
+        DrawLine(px, BOARD_Y, px, BOARD_Y + BOARD_H, (Color){255, 255, 255, x % 5 == 0 ? 14 : 6});
     }
     for (int y = 0; y <= BOARD_ROWS; y++) {
         int py = BOARD_Y + y * CELL_SIZE;
-        DrawLine(BOARD_X, py, BOARD_X + BOARD_W, py, (Color){255, 255, 255, y % 4 == 0 ? 16 : 7});
+        DrawLine(BOARD_X, py, BOARD_X + BOARD_W, py, (Color){255, 255, 255, y % 4 == 0 ? 13 : 5});
     }
 
     DrawRectangleGradientV(BOARD_X, BOARD_Y, BOARD_W, 68, (Color){255, 255, 255, 18}, (Color){255, 255, 255, 0});
+    DrawRectangleGradientV(BOARD_X, BOARD_Y + BOARD_H - 84, BOARD_W, 84, (Color){0, 0, 0, 0}, (Color){0, 0, 0, 58});
+    DrawRectangleGradientH(BOARD_X, BOARD_Y, 74, BOARD_H, (Color){0, 0, 0, 44}, (Color){0, 0, 0, 0});
+    DrawRectangleGradientH(BOARD_X + BOARD_W - 74, BOARD_Y, 74, BOARD_H, (Color){0, 0, 0, 0}, (Color){0, 0, 0, 44});
     DrawRectangleRoundedLinesEx((Rectangle){BOARD_X + 1, BOARD_Y + 1, BOARD_W - 2, BOARD_H - 2}, 0.03f, 10, 2.0f,
                                 (Color){185, 239, 219, 58});
 }
@@ -255,6 +269,9 @@ static void DrawSidePanel(const Game *game) {
 
     DrawRoundedPanel(panel, 0.08f, C_PANEL, C_LINE);
     DrawRectangleRounded((Rectangle){PANEL_X + 12, PANEL_Y + 12, 4, PANEL_H - 24}, 0.6f, 8, WithAlpha(C_BLUE, 118.0f));
+    DrawRectangleRounded((Rectangle){PANEL_X + 22, PANEL_Y + 86, PANEL_W - 44, 1.0f}, 0.5f, 4,
+                         (Color){255, 255, 255, 28});
+    DrawCornerTicks(panel, 14.0f, (Color){176, 220, 255, 58});
 
     DrawUIText("本局状态", PANEL_X + 24, PANEL_Y + 20, 20, C_TEXT);
     DrawPill(GameStateText(game->state), (Rectangle){PANEL_X + 24, PANEL_Y + 48, 88, 28}, C_ACCENT);
@@ -303,6 +320,9 @@ static void DrawMenu(const Game *game) {
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 244.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 8, modal.y + 8, modal.width - 16, modal.height - 16}, 0.07f, 12, 1.2f,
                                 WithAlpha((Color){116, 232, 178, 255}, 82.0f * alpha));
+    DrawCornerTicks(modal, 18.0f, WithAlpha(C_ACCENT, 128.0f * alpha));
+    DrawRectangleRounded((Rectangle){modal.x + 30, modal.y + 20, modal.width - 60, 1.0f}, 0.5f, 4,
+                         WithAlpha((Color){255, 255, 255, 255}, 34.0f * alpha));
 
     DrawTitleSnakeMark((Vector2){modal.x + 34.0f, modal.y + 58.0f}, (float)GetTime());
     DrawTextFit("贪吃蛇", (Rectangle){modal.x + 84, modal.y + 28, modal.width - 108, 46}, 34, WithAlpha(C_TEXT, 255.0f * alpha), true);
@@ -338,6 +358,7 @@ static void DrawStateOverlay(const Game *game) {
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 242.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRounded((Rectangle){modal.x + 16, modal.y + 18, 5, modal.height - 36}, 0.6f, 8,
                          WithAlpha(game->state == STATE_GAME_OVER ? C_DANGER : C_BLUE, 170.0f * alpha));
+    DrawCornerTicks(modal, 18.0f, WithAlpha(game->state == STATE_GAME_OVER ? C_DANGER : C_BLUE, 128.0f * alpha));
     DrawTextFit(title, (Rectangle){modal.x, modal.y + 24, modal.width, 46}, 38, WithAlpha(C_TEXT, 255.0f * alpha), true);
     DrawTextFit(message, (Rectangle){modal.x, modal.y + 76, modal.width, 28}, 20, WithAlpha(C_MUTED, 255.0f * alpha), true);
     DrawMiniDivider((Rectangle){modal.x + 46, modal.y + 112, modal.width - 92, 1});
@@ -361,9 +382,9 @@ static void DrawStateOverlay(const Game *game) {
 static void DrawButton(const UIButton *button) {
     Color base = ButtonBaseColor(button->id);
     bool secondary = ButtonIsSecondary(button->id);
-    Color fill = secondary ? MixColor(C_SURFACE_LIGHT, WithAlpha(base, 118.0f), button->hoverT)
+    Color fill = secondary ? MixColor((Color){29, 36, 52, 218}, WithAlpha(base, 92.0f), button->hoverT)
                            : MixColor(base, MixColor(base, RAYWHITE, 0.28f), button->hoverT);
-    Color border = secondary ? MixColor(WithAlpha(base, 112.0f), WithAlpha(base, 212.0f), button->hoverT)
+    Color border = secondary ? MixColor(WithAlpha(base, 86.0f), WithAlpha(base, 186.0f), button->hoverT)
                              : MixColor((Color){255, 255, 255, 72}, (Color){255, 255, 255, 190}, button->hoverT);
     Color textColor = secondary ? MixColor(C_TEXT, base, 0.25f + button->hoverT * 0.18f) : (Color){12, 30, 30, 255};
     Rectangle rect = button->bounds;
@@ -373,16 +394,16 @@ static void DrawButton(const UIButton *button) {
     rect.x -= button->hoverT * 1.5f;
     rect.width += button->hoverT * 3.0f;
 
-    DrawRectangleRounded((Rectangle){rect.x, rect.y + 4.0f + button->pressT * 2.0f, rect.width, rect.height}, 0.22f, 10,
-                         (Color){0, 0, 0, 60});
+    DrawRectangleRounded((Rectangle){rect.x, rect.y + 4.0f + button->pressT * 2.0f, rect.width, rect.height}, 0.18f, 10,
+                         (Color){0, 0, 0, secondary ? 46 : 66});
     if (!secondary) {
-        DrawRectangleRounded((Rectangle){rect.x - 2.0f, rect.y - 2.0f, rect.width + 4.0f, rect.height + 4.0f}, 0.24f, 10,
+        DrawRectangleRounded((Rectangle){rect.x - 2.0f, rect.y - 2.0f, rect.width + 4.0f, rect.height + 4.0f}, 0.2f, 10,
                              WithAlpha(base, 34.0f + button->hoverT * 42.0f));
     }
-    DrawRectangleRounded(rect, 0.22f, 10, fill);
-    DrawRectangleRounded((Rectangle){rect.x + 3.0f, rect.y + 3.0f, rect.width - 6.0f, rect.height * 0.38f}, 0.22f, 10,
-                         (Color){255, 255, 255, (unsigned char)(secondary ? 14.0f + 24.0f * button->hoverT : 30.0f + 38.0f * button->hoverT)});
-    DrawRectangleRoundedLinesEx(rect, 0.22f, 10, 2.0f, border);
+    DrawRectangleRounded(rect, 0.18f, 10, fill);
+    DrawRectangleRounded((Rectangle){rect.x + 3.0f, rect.y + 3.0f, rect.width - 6.0f, rect.height * 0.34f}, 0.18f, 10,
+                         (Color){255, 255, 255, (unsigned char)(secondary ? 10.0f + 18.0f * button->hoverT : 26.0f + 36.0f * button->hoverT)});
+    DrawRectangleRoundedLinesEx(rect, 0.18f, 10, secondary ? 1.4f : 2.0f, border);
     DrawTextFit(button->label, rect, rect.height < 38.0f ? 17 : 19, textColor, true);
 }
 
@@ -433,6 +454,22 @@ static void DrawMiniDivider(Rectangle rect) {
                            (Color){255, 255, 255, 0}, (Color){255, 255, 255, 42});
     DrawRectangleGradientH((int)(rect.x + rect.width * 0.5f), (int)rect.y, (int)(rect.width * 0.5f), (int)rect.height,
                            (Color){255, 255, 255, 42}, (Color){255, 255, 255, 0});
+}
+
+static void DrawCornerTicks(Rectangle rect, float size, Color color) {
+    float x0 = rect.x + 10.0f;
+    float y0 = rect.y + 10.0f;
+    float x1 = rect.x + rect.width - 10.0f;
+    float y1 = rect.y + rect.height - 10.0f;
+
+    DrawLineEx((Vector2){x0, y0}, (Vector2){x0 + size, y0}, 1.5f, color);
+    DrawLineEx((Vector2){x0, y0}, (Vector2){x0, y0 + size}, 1.5f, color);
+    DrawLineEx((Vector2){x1, y0}, (Vector2){x1 - size, y0}, 1.5f, color);
+    DrawLineEx((Vector2){x1, y0}, (Vector2){x1, y0 + size}, 1.5f, color);
+    DrawLineEx((Vector2){x0, y1}, (Vector2){x0 + size, y1}, 1.5f, color);
+    DrawLineEx((Vector2){x0, y1}, (Vector2){x0, y1 - size}, 1.5f, color);
+    DrawLineEx((Vector2){x1, y1}, (Vector2){x1 - size, y1}, 1.5f, color);
+    DrawLineEx((Vector2){x1, y1}, (Vector2){x1, y1 - size}, 1.5f, color);
 }
 
 static void DrawTitleSnakeMark(Vector2 origin, float time) {
