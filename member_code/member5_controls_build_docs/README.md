@@ -12,7 +12,7 @@
 
 ## 主要任务
 
-- 初始化 Start、Difficulty、Sound、Reset Best、Quit 五个主菜单按钮，以及右侧功能按钮和弹窗按钮。
+- 初始化 Start 主操作按钮，以及 Difficulty、Sound、Reset Best、Quit 次级操作按钮，维护右侧功能按钮和弹窗按钮。
 - 处理鼠标 hover、pressed 和点击事件。
 - 将按钮点击转换为游戏操作，例如开始、暂停、重开、切换难度、开关音效、重置最高分和返回菜单。
 - 维护按钮动画状态。

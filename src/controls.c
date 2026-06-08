@@ -7,11 +7,11 @@ static void ResetButton(UIButton *button, float dt);
 static float Approach(float value, float target, float amount);
 
 void ControlsInit(Game *game) {
-    game->menuButtons[0] = (UIButton){{BOARD_X + 180, BOARD_Y + 190, 240, 40}, "Start Game", BUTTON_START, false, false, 0.0f, 0.0f};
-    game->menuButtons[1] = (UIButton){{BOARD_X + 180, BOARD_Y + 240, 240, 40}, "Difficulty", BUTTON_DIFFICULTY, false, false, 0.0f, 0.0f};
-    game->menuButtons[2] = (UIButton){{BOARD_X + 180, BOARD_Y + 290, 240, 40}, "Sound", BUTTON_SOUND, false, false, 0.0f, 0.0f};
-    game->menuButtons[3] = (UIButton){{BOARD_X + 180, BOARD_Y + 340, 240, 40}, "Reset Best", BUTTON_RESET_BEST, false, false, 0.0f, 0.0f};
-    game->menuButtons[4] = (UIButton){{BOARD_X + 180, BOARD_Y + 390, 240, 40}, "Quit", BUTTON_QUIT, false, false, 0.0f, 0.0f};
+    game->menuButtons[0] = (UIButton){{BOARD_X + 150, BOARD_Y + 196, 300, 48}, "Start Game", BUTTON_START, false, false, 0.0f, 0.0f};
+    game->menuButtons[1] = (UIButton){{BOARD_X + 150, BOARD_Y + 272, 144, 42}, "Difficulty", BUTTON_DIFFICULTY, false, false, 0.0f, 0.0f};
+    game->menuButtons[2] = (UIButton){{BOARD_X + 306, BOARD_Y + 272, 144, 42}, "Sound", BUTTON_SOUND, false, false, 0.0f, 0.0f};
+    game->menuButtons[3] = (UIButton){{BOARD_X + 150, BOARD_Y + 326, 144, 42}, "Reset Best", BUTTON_RESET_BEST, false, false, 0.0f, 0.0f};
+    game->menuButtons[4] = (UIButton){{BOARD_X + 306, BOARD_Y + 326, 144, 42}, "Quit", BUTTON_QUIT, false, false, 0.0f, 0.0f};
 
     game->sideButtons[0] = (UIButton){{PANEL_X + 24, PANEL_Y + 315, 182, 34}, "Pause", BUTTON_PAUSE, false, false, 0.0f, 0.0f};
     game->sideButtons[1] = (UIButton){{PANEL_X + 24, PANEL_Y + 358, 182, 34}, "Restart", BUTTON_RESTART, false, false, 0.0f, 0.0f};

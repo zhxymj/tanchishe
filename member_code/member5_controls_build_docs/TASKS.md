@@ -7,8 +7,8 @@
 | 成员1 | 程序入口和游戏状态 | `src/main.c`, `src/game.c`, `src/game.h` | 窗口初始化、主循环、状态切换、暂停继续、重新开始、返回菜单、固定时间步进、本局用时、音效开关、最高分重置。 |
 | 成员2 | 蛇身移动和碰撞 | `src/snake.c`, `src/snake.h` | 蛇身数组、方向队列、禁止反向、蛇头下一格、蛇身跟随、吃食物增长、撞墙和撞自身判断。 |
 | 成员3 | 食物、得分和动画反馈 | `src/food.c`, `src/food.h` | 食物随机生成、避免刷到蛇身、食物脉冲、吃食物粒子效果、扩散光圈、分数反馈和食物绘制。 |
-| 成员4 | UI 绘制和视觉表现 | `src/ui.c`, `src/ui.h` | 背景、棋盘边缘光、网格、连贯蛇身、蛇头眼睛、右侧面板、开始菜单、暂停和结束弹窗绘制。 |
-| 成员5 | 控件交互、构建和文档 | `src/controls.c`, `src/controls.h`, `build.bat`, `CMakeLists.txt`, `README.md`, `CONTRIBUTING.md`, `TASKS.md` | 五按钮主菜单、右侧功能按钮、弹窗按钮、鼠标点击、hover/pressed 状态、交互状态更新、编译脚本和文档同步。 |
+| 成员4 | UI 绘制和视觉表现 | `src/ui.c`, `src/ui.h` | 产品化视觉层级、背景、棋盘边缘光、网格、连贯蛇身、蛇头眼睛、右侧仪表板、开始菜单、暂停和结束弹窗绘制。 |
+| 成员5 | 控件交互、构建和文档 | `src/controls.c`, `src/controls.h`, `build.bat`, `CMakeLists.txt`, `README.md`, `CONTRIBUTING.md`, `TASKS.md` | 主操作和次级操作按钮布局、右侧功能按钮、弹窗按钮、鼠标点击、hover/pressed 状态、交互状态更新、编译脚本和文档同步。 |
 
 ## 技术要求
 

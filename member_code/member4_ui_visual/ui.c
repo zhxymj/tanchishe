@@ -8,6 +8,8 @@
 static const Color C_BG_TOP = {17, 22, 36, 255};
 static const Color C_BG_BOTTOM = {40, 47, 67, 255};
 static const Color C_PANEL = {30, 36, 53, 236};
+static const Color C_SURFACE = {21, 27, 42, 238};
+static const Color C_SURFACE_LIGHT = {42, 50, 70, 228};
 static const Color C_LINE = {106, 125, 160, 80};
 static const Color C_TEXT = {239, 244, 255, 255};
 static const Color C_MUTED = {165, 176, 197, 255};
@@ -34,9 +36,11 @@ static void DrawRoundedPanel(Rectangle rect, float roundness, Color color, Color
 static void DrawTextFit(const char *text, Rectangle rect, int fontSize, Color color, bool centered);
 static void DrawInfoTile(const char *label, const char *value, Rectangle rect, Color accent);
 static void DrawPill(const char *text, Rectangle rect, Color accent);
+static void DrawMiniDivider(Rectangle rect);
 static void DrawTitleSnakeMark(Vector2 origin, float time);
 static Vector2 BoardCellCenter(Cell cell);
 static Color ButtonBaseColor(ButtonId id);
+static bool ButtonIsSecondary(ButtonId id);
 static Color MixColor(Color a, Color b, float t);
 static Color WithAlpha(Color color, float alpha);
 static void FormatTime(float seconds, char *buffer, int bufferSize);
@@ -85,16 +89,17 @@ static void DrawHeader(void) {
     float time = (float)GetTime();
 
     DrawRoundedPanel(header, 0.18f, C_PANEL, C_LINE);
+    DrawRectangleRounded((Rectangle){header.x + 14, header.y + 14, 5, header.height - 28}, 0.6f, 8, C_ACCENT);
 
-    DrawTitleSnakeMark((Vector2){76.0f, 65.0f}, time);
-    DrawText("SNAKE", 126, 50, 36, C_TEXT);
-    DrawText("NEON RUN", 128, 86, 18, C_ACCENT);
-    DrawText("SOLO ARCADE", 304, 55, 24, C_MUTED);
-    DrawText("Bright board. Fast turns. One clean run.", 304, 88, 17, (Color){198, 209, 229, 255});
+    DrawTitleSnakeMark((Vector2){84.0f, 65.0f}, time);
+    DrawText("SNAKE", 134, 50, 36, C_TEXT);
+    DrawText("NEON RUN", 136, 86, 18, C_ACCENT);
+    DrawText("SOLO ARCADE", 316, 54, 24, C_TEXT);
+    DrawText("Clean run. Sharp turns. Neon focus.", 316, 88, 17, (Color){198, 209, 229, 255});
 
-    DrawPill("SOLO", (Rectangle){720, 52, 64, 28}, C_BLUE);
-    DrawPill("SCORE", (Rectangle){794, 52, 78, 28}, C_ACCENT);
-    DrawPill("BEST RUN", (Rectangle){720, 88, 152, 26}, C_ORANGE);
+    DrawPill("SOLO", (Rectangle){714, 52, 66, 28}, C_BLUE);
+    DrawPill("LIVE", (Rectangle){790, 52, 66, 28}, C_ACCENT);
+    DrawPill("BEST RUN", (Rectangle){714, 88, 142, 26}, C_ORANGE);
 }
 
 static void DrawBoardFrame(void) {
@@ -240,15 +245,18 @@ static void DrawSidePanel(const Game *game) {
     char speedText[32];
 
     DrawRoundedPanel(panel, 0.08f, C_PANEL, C_LINE);
+    DrawRectangleRounded((Rectangle){PANEL_X + 12, PANEL_Y + 12, 4, PANEL_H - 24}, 0.6f, 8, WithAlpha(C_BLUE, 118.0f));
 
-    DrawText("RUN STATUS", PANEL_X + 24, PANEL_Y + 20, 20, C_TEXT);
+    DrawText("SESSION", PANEL_X + 24, PANEL_Y + 20, 20, C_TEXT);
     DrawPill(GameStateText(game->state), (Rectangle){PANEL_X + 24, PANEL_Y + 48, 88, 28}, C_ACCENT);
     DrawPill(GameDifficultyText(game->difficulty), (Rectangle){PANEL_X + 120, PANEL_Y + 48, 86, 28}, C_ORANGE);
 
     snprintf(scoreText, sizeof(scoreText), "%d", game->score);
-    DrawText("Score", PANEL_X + 24, PANEL_Y + 88, 17, C_MUTED);
+    DrawRectangleRounded((Rectangle){PANEL_X + 22, PANEL_Y + 88, 186, 68}, 0.1f, 10, (Color){18, 25, 38, 160});
+    DrawRectangleRoundedLinesEx((Rectangle){PANEL_X + 22, PANEL_Y + 88, 186, 68}, 0.1f, 10, 1.2f, WithAlpha(C_ACCENT, 82.0f));
+    DrawText("SCORE", PANEL_X + 34, PANEL_Y + 98, 14, C_MUTED);
     int scoreSize = 38 + (int)(game->scorePulse * 30.0f);
-    DrawTextFit(scoreText, (Rectangle){PANEL_X + 22, PANEL_Y + 104 - (scoreSize - 38) / 2, 186, 54}, scoreSize, C_TEXT, false);
+    DrawTextFit(scoreText, (Rectangle){PANEL_X + 32, PANEL_Y + 112 - (scoreSize - 38) / 2, 166, 42}, scoreSize, C_TEXT, false);
 
     snprintf(bestText, sizeof(bestText), "%d", game->highScore);
     FormatTime(game->runTime, timeText, sizeof(timeText));
@@ -260,6 +268,7 @@ static void DrawSidePanel(const Game *game) {
     DrawInfoTile("LEVEL", levelText, (Rectangle){PANEL_X + 24, PANEL_Y + 232, 86, 54}, C_ACCENT);
     DrawInfoTile("SPEED", speedText, (Rectangle){PANEL_X + 120, PANEL_Y + 232, 86, 54}, C_MAGENTA);
 
+    DrawMiniDivider((Rectangle){PANEL_X + 24, PANEL_Y + 286, 182, 1});
     DrawText("Pace", PANEL_X + 24, PANEL_Y + 294, 15, C_MUTED);
     DrawRectangleRounded((Rectangle){PANEL_X + 68, PANEL_Y + 299, 138, 8}, 0.5f, 8, (Color){255, 255, 255, 34});
     DrawRectangleRounded((Rectangle){PANEL_X + 68, PANEL_Y + 299, 138.0f * SpeedRatio(game), 8}, 0.5f, 8, C_BLUE);
@@ -274,13 +283,15 @@ static void DrawMenu(const Game *game) {
     Rectangle board = {BOARD_X, BOARD_Y, BOARD_W, BOARD_H};
     Rectangle modal = {BOARD_X + 120, BOARD_Y + 28, BOARD_W - 240, 426};
     char bestText[64];
-    char modeText[80];
+    char difficultyText[40];
+    char soundText[32];
 
     snprintf(bestText, sizeof(bestText), "Best %d", game->highScore);
-    snprintf(modeText, sizeof(modeText), "%s  /  %s", GameDifficultyText(game->difficulty), game->soundEnabled ? "Sound On" : "Sound Off");
+    snprintf(difficultyText, sizeof(difficultyText), "%s", GameDifficultyText(game->difficulty));
+    snprintf(soundText, sizeof(soundText), "%s", game->soundEnabled ? "Sound On" : "Sound Off");
 
     DrawRectangleRec(board, WithAlpha((Color){9, 13, 20, 255}, 128.0f * alpha));
-    DrawRoundedPanel(modal, 0.075f, WithAlpha((Color){25, 31, 48, 255}, 244.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
+    DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 244.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 8, modal.y + 8, modal.width - 16, modal.height - 16}, 0.07f, 12, 1.2f,
                                 WithAlpha((Color){116, 232, 178, 255}, 82.0f * alpha));
 
@@ -288,8 +299,15 @@ static void DrawMenu(const Game *game) {
     DrawTextFit("SNAKE RUN", (Rectangle){modal.x + 84, modal.y + 28, modal.width - 108, 46}, 34, WithAlpha(C_TEXT, 255.0f * alpha), true);
     DrawTextFit("Solo neon arena", (Rectangle){modal.x, modal.y + 80, modal.width, 26}, 18, WithAlpha(C_MUTED, 255.0f * alpha), true);
 
-    DrawPill(bestText, (Rectangle){modal.x + 54, modal.y + 124, 112, 30}, C_ORANGE);
-    DrawPill(modeText, (Rectangle){modal.x + 176, modal.y + 124, 132, 30}, C_BLUE);
+    DrawPill(bestText, (Rectangle){modal.x + 30, modal.y + 120, 104, 30}, C_ORANGE);
+    DrawPill(difficultyText, (Rectangle){modal.x + 146, modal.y + 120, 92, 30}, C_BLUE);
+    DrawPill(soundText, (Rectangle){modal.x + 250, modal.y + 120, 80, 30}, C_MAGENTA);
+
+    DrawRectangleRounded((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, WithAlpha(C_SURFACE_LIGHT, 118.0f * alpha));
+    DrawRectangleRoundedLinesEx((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, 1.0f,
+                                WithAlpha(C_LINE, 130.0f * alpha));
+    DrawText("SETTINGS", (int)(modal.x + 42), (int)(modal.y + 220), 13, WithAlpha(C_MUTED, 255.0f * alpha));
+    DrawMiniDivider((Rectangle){modal.x + 42, modal.y + 238, modal.width - 84, 1});
 
     for (int i = 0; i < MENU_BUTTON_COUNT; i++) {
         DrawButton(&game->menuButtons[i]);
@@ -308,9 +326,12 @@ static void DrawStateOverlay(const Game *game) {
     char modeText[40];
 
     DrawRectangleRec(board, WithAlpha((Color){9, 13, 20, 255}, 122.0f * alpha));
-    DrawRoundedPanel(modal, 0.075f, WithAlpha((Color){27, 33, 49, 255}, 240.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
+    DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 242.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
+    DrawRectangleRounded((Rectangle){modal.x + 16, modal.y + 18, 5, modal.height - 36}, 0.6f, 8,
+                         WithAlpha(game->state == STATE_GAME_OVER ? C_DANGER : C_BLUE, 170.0f * alpha));
     DrawTextFit(title, (Rectangle){modal.x, modal.y + 24, modal.width, 46}, 38, WithAlpha(C_TEXT, 255.0f * alpha), true);
     DrawTextFit(message, (Rectangle){modal.x, modal.y + 76, modal.width, 28}, 20, WithAlpha(C_MUTED, 255.0f * alpha), true);
+    DrawMiniDivider((Rectangle){modal.x + 46, modal.y + 112, modal.width - 92, 1});
 
     snprintf(scoreText, sizeof(scoreText), "%d", game->score);
     snprintf(bestText, sizeof(bestText), "%d", game->highScore);
@@ -330,9 +351,12 @@ static void DrawStateOverlay(const Game *game) {
 
 static void DrawButton(const UIButton *button) {
     Color base = ButtonBaseColor(button->id);
-    Color fill = MixColor(base, MixColor(base, RAYWHITE, 0.34f), button->hoverT);
-    Color border = MixColor((Color){255, 255, 255, 72}, (Color){255, 255, 255, 190}, button->hoverT);
-    Color textColor = (button->id == BUTTON_QUIT) ? C_TEXT : (Color){12, 30, 30, 255};
+    bool secondary = ButtonIsSecondary(button->id);
+    Color fill = secondary ? MixColor(C_SURFACE_LIGHT, WithAlpha(base, 118.0f), button->hoverT)
+                           : MixColor(base, MixColor(base, RAYWHITE, 0.28f), button->hoverT);
+    Color border = secondary ? MixColor(WithAlpha(base, 112.0f), WithAlpha(base, 212.0f), button->hoverT)
+                             : MixColor((Color){255, 255, 255, 72}, (Color){255, 255, 255, 190}, button->hoverT);
+    Color textColor = secondary ? MixColor(C_TEXT, base, 0.25f + button->hoverT * 0.18f) : (Color){12, 30, 30, 255};
     Rectangle rect = button->bounds;
     float lift = 1.5f * button->hoverT - 2.0f * button->pressT;
 
@@ -342,9 +366,13 @@ static void DrawButton(const UIButton *button) {
 
     DrawRectangleRounded((Rectangle){rect.x, rect.y + 4.0f + button->pressT * 2.0f, rect.width, rect.height}, 0.22f, 10,
                          (Color){0, 0, 0, 60});
+    if (!secondary) {
+        DrawRectangleRounded((Rectangle){rect.x - 2.0f, rect.y - 2.0f, rect.width + 4.0f, rect.height + 4.0f}, 0.24f, 10,
+                             WithAlpha(base, 34.0f + button->hoverT * 42.0f));
+    }
     DrawRectangleRounded(rect, 0.22f, 10, fill);
-    DrawRectangleRounded((Rectangle){rect.x + 3.0f, rect.y + 3.0f, rect.width - 6.0f, rect.height * 0.42f}, 0.22f, 10,
-                         (Color){255, 255, 255, (unsigned char)(28.0f + 40.0f * button->hoverT)});
+    DrawRectangleRounded((Rectangle){rect.x + 3.0f, rect.y + 3.0f, rect.width - 6.0f, rect.height * 0.38f}, 0.22f, 10,
+                         (Color){255, 255, 255, (unsigned char)(secondary ? 14.0f + 24.0f * button->hoverT : 30.0f + 38.0f * button->hoverT)});
     DrawRectangleRoundedLinesEx(rect, 0.22f, 10, 2.0f, border);
     DrawTextFit(button->label, rect, rect.height < 38.0f ? 17 : 19, textColor, true);
 }
@@ -370,16 +398,28 @@ static void DrawTextFit(const char *text, Rectangle rect, int fontSize, Color co
 }
 
 static void DrawInfoTile(const char *label, const char *value, Rectangle rect, Color accent) {
-    DrawRectangleRounded(rect, 0.12f, 10, (Color){18, 25, 38, 176});
+    DrawRectangleRounded((Rectangle){rect.x, rect.y + 2.0f, rect.width, rect.height}, 0.12f, 10, (Color){0, 0, 0, 42});
+    DrawRectangleRounded(rect, 0.12f, 10, (Color){18, 25, 38, 188});
+    DrawRectangleRounded((Rectangle){rect.x + 1.0f, rect.y + 1.0f, 4.0f, rect.height - 2.0f}, 0.6f, 8,
+                         WithAlpha(accent, 170.0f));
     DrawRectangleRoundedLinesEx(rect, 0.12f, 10, 1.2f, WithAlpha(accent, 92.0f));
-    DrawTextFit(label, (Rectangle){rect.x + 8, rect.y + 6, rect.width - 16, 18}, 13, C_MUTED, false);
-    DrawTextFit(value, (Rectangle){rect.x + 8, rect.y + 25, rect.width - 16, rect.height - 30}, 22, accent, false);
+    DrawTextFit(label, (Rectangle){rect.x + 12, rect.y + 6, rect.width - 18, 18}, 13, C_MUTED, false);
+    DrawTextFit(value, (Rectangle){rect.x + 12, rect.y + 25, rect.width - 18, rect.height - 30}, 22, accent, false);
 }
 
 static void DrawPill(const char *text, Rectangle rect, Color accent) {
-    DrawRectangleRounded(rect, 0.5f, 12, WithAlpha(accent, 38.0f));
+    DrawRectangleRounded(rect, 0.5f, 12, (Color){16, 22, 35, 178});
+    DrawCircleV((Vector2){rect.x + 15.0f, rect.y + rect.height * 0.5f}, 4.0f, WithAlpha(accent, 210.0f));
     DrawRectangleRoundedLinesEx(rect, 0.5f, 12, 1.2f, WithAlpha(accent, 112.0f));
-    DrawTextFit(text, rect, 15, MixColor(C_TEXT, accent, 0.25f), true);
+    DrawTextFit(text, (Rectangle){rect.x + 18.0f, rect.y, rect.width - 22.0f, rect.height}, 15,
+                MixColor(C_TEXT, accent, 0.18f), true);
+}
+
+static void DrawMiniDivider(Rectangle rect) {
+    DrawRectangleGradientH((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height,
+                           (Color){255, 255, 255, 0}, (Color){255, 255, 255, 42});
+    DrawRectangleGradientH((int)(rect.x + rect.width * 0.5f), (int)rect.y, (int)(rect.width * 0.5f), (int)rect.height,
+                           (Color){255, 255, 255, 42}, (Color){255, 255, 255, 0});
 }
 
 static void DrawTitleSnakeMark(Vector2 origin, float time) {
@@ -424,6 +464,11 @@ static Color ButtonBaseColor(ButtonId id) {
             return C_DANGER;
     }
     return C_ACCENT;
+}
+
+static bool ButtonIsSecondary(ButtonId id) {
+    return id == BUTTON_DIFFICULTY || id == BUTTON_SOUND || id == BUTTON_RESET_BEST ||
+           id == BUTTON_RESTART || id == BUTTON_MENU || id == BUTTON_QUIT;
 }
 
 static Color MixColor(Color a, Color b, float t) {
