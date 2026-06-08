@@ -59,4 +59,5 @@ git push origin main
 - 提交前必须至少编译一次。
 - 修改公共结构 `src/game.h` 前先确认其他模块是否受影响。
 - 修改按钮数量时，需要同时更新 `MENU_BUTTON_COUNT`、`ControlsInit`、`ControlsUpdate` 和 UI 绘制循环。
+- 新增中文 UI 文案时，需要同步更新 `src/ui.c` 中的 `UI_FONT_CHARS`，否则新增汉字可能无法显示。
 - 如果多人同时修改公共头文件 `src/game.h` 产生冲突，保留双方有效代码后再提交。

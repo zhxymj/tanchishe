@@ -234,19 +234,19 @@ void GameSaveHighScore(int score) {
 
 const char *GameStateText(GameState state) {
     switch (state) {
-        case STATE_MENU: return "Menu";
-        case STATE_RUNNING: return "Running";
-        case STATE_PAUSED: return "Paused";
-        case STATE_GAME_OVER: return "Game Over";
+        case STATE_MENU: return "菜单";
+        case STATE_RUNNING: return "运行中";
+        case STATE_PAUSED: return "已暂停";
+        case STATE_GAME_OVER: return "结束";
     }
     return "";
 }
 
 const char *GameDifficultyText(Difficulty difficulty) {
     switch (difficulty) {
-        case DIFFICULTY_EASY: return "Easy";
-        case DIFFICULTY_NORMAL: return "Normal";
-        case DIFFICULTY_HARD: return "Hard";
+        case DIFFICULTY_EASY: return "简单";
+        case DIFFICULTY_NORMAL: return "普通";
+        case DIFFICULTY_HARD: return "困难";
     }
     return "";
 }

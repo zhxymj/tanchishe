@@ -22,6 +22,13 @@ static const Color C_DANGER = {255, 105, 105, 255};
 static const Color C_BOARD_A = {35, 53, 58, 255};
 static const Color C_BOARD_B = {30, 46, 53, 255};
 
+static const char *UI_FONT_PATH = "C:/Windows/Fonts/simhei.ttf";
+static const char *UI_FONT_CHARS =
+    "贪吃蛇霓虹冲刺单机街机专注走位刷新最高分进行本局状态菜单运行中暂停结束"
+    "普通简单困难分数时间等级速度节奏设置开始游戏难度音效开关重置纪录退出"
+    "继续重开再来一局游戏结束已暂停最终成绩返回最高普通简单困难格秒模式清空"
+    "0123456789:/. ：，。";
+
 static void DrawBackground(void);
 static void DrawHeader(void);
 static void DrawBoardFrame(void);
@@ -33,6 +40,7 @@ static void DrawMenu(const Game *game);
 static void DrawStateOverlay(const Game *game);
 static void DrawButton(const UIButton *button);
 static void DrawRoundedPanel(Rectangle rect, float roundness, Color color, Color border);
+static void DrawUIText(const char *text, int x, int y, int fontSize, Color color);
 static void DrawTextFit(const char *text, Rectangle rect, int fontSize, Color color, bool centered);
 static void DrawInfoTile(const char *label, const char *value, Rectangle rect, Color accent);
 static void DrawPill(const char *text, Rectangle rect, Color accent);
@@ -41,6 +49,7 @@ static void DrawTitleSnakeMark(Vector2 origin, float time);
 static Vector2 BoardCellCenter(Cell cell);
 static Color ButtonBaseColor(ButtonId id);
 static bool ButtonIsSecondary(ButtonId id);
+static Font GetUIFont(void);
 static Color MixColor(Color a, Color b, float t);
 static Color WithAlpha(Color color, float alpha);
 static void FormatTime(float seconds, char *buffer, int bufferSize);
@@ -92,14 +101,14 @@ static void DrawHeader(void) {
     DrawRectangleRounded((Rectangle){header.x + 14, header.y + 14, 5, header.height - 28}, 0.6f, 8, C_ACCENT);
 
     DrawTitleSnakeMark((Vector2){84.0f, 65.0f}, time);
-    DrawText("SNAKE", 134, 50, 36, C_TEXT);
-    DrawText("NEON RUN", 136, 86, 18, C_ACCENT);
-    DrawText("SOLO ARCADE", 316, 54, 24, C_TEXT);
-    DrawText("Clean run. Sharp turns. Neon focus.", 316, 88, 17, (Color){198, 209, 229, 255});
+    DrawUIText("贪吃蛇", 134, 48, 34, C_TEXT);
+    DrawUIText("霓虹冲刺", 136, 86, 18, C_ACCENT);
+    DrawUIText("单机街机", 316, 54, 24, C_TEXT);
+    DrawUIText("专注走位，刷新最高分。", 316, 88, 17, (Color){198, 209, 229, 255});
 
-    DrawPill("SOLO", (Rectangle){714, 52, 66, 28}, C_BLUE);
-    DrawPill("LIVE", (Rectangle){790, 52, 66, 28}, C_ACCENT);
-    DrawPill("BEST RUN", (Rectangle){714, 88, 142, 26}, C_ORANGE);
+    DrawPill("单机", (Rectangle){714, 52, 66, 28}, C_BLUE);
+    DrawPill("进行", (Rectangle){790, 52, 66, 28}, C_ACCENT);
+    DrawPill("最高分", (Rectangle){714, 88, 142, 26}, C_ORANGE);
 }
 
 static void DrawBoardFrame(void) {
@@ -247,29 +256,29 @@ static void DrawSidePanel(const Game *game) {
     DrawRoundedPanel(panel, 0.08f, C_PANEL, C_LINE);
     DrawRectangleRounded((Rectangle){PANEL_X + 12, PANEL_Y + 12, 4, PANEL_H - 24}, 0.6f, 8, WithAlpha(C_BLUE, 118.0f));
 
-    DrawText("SESSION", PANEL_X + 24, PANEL_Y + 20, 20, C_TEXT);
+    DrawUIText("本局状态", PANEL_X + 24, PANEL_Y + 20, 20, C_TEXT);
     DrawPill(GameStateText(game->state), (Rectangle){PANEL_X + 24, PANEL_Y + 48, 88, 28}, C_ACCENT);
     DrawPill(GameDifficultyText(game->difficulty), (Rectangle){PANEL_X + 120, PANEL_Y + 48, 86, 28}, C_ORANGE);
 
     snprintf(scoreText, sizeof(scoreText), "%d", game->score);
     DrawRectangleRounded((Rectangle){PANEL_X + 22, PANEL_Y + 88, 186, 68}, 0.1f, 10, (Color){18, 25, 38, 160});
     DrawRectangleRoundedLinesEx((Rectangle){PANEL_X + 22, PANEL_Y + 88, 186, 68}, 0.1f, 10, 1.2f, WithAlpha(C_ACCENT, 82.0f));
-    DrawText("SCORE", PANEL_X + 34, PANEL_Y + 98, 14, C_MUTED);
+    DrawUIText("分数", PANEL_X + 34, PANEL_Y + 98, 14, C_MUTED);
     int scoreSize = 38 + (int)(game->scorePulse * 30.0f);
     DrawTextFit(scoreText, (Rectangle){PANEL_X + 32, PANEL_Y + 112 - (scoreSize - 38) / 2, 166, 42}, scoreSize, C_TEXT, false);
 
     snprintf(bestText, sizeof(bestText), "%d", game->highScore);
     FormatTime(game->runTime, timeText, sizeof(timeText));
     snprintf(levelText, sizeof(levelText), "%d", game->level);
-    snprintf(speedText, sizeof(speedText), "%.1f/s", 1.0f / game->moveInterval);
+    snprintf(speedText, sizeof(speedText), "%.1f格/秒", 1.0f / game->moveInterval);
 
-    DrawInfoTile("BEST", bestText, (Rectangle){PANEL_X + 24, PANEL_Y + 164, 86, 58}, C_ORANGE);
-    DrawInfoTile("TIME", timeText, (Rectangle){PANEL_X + 120, PANEL_Y + 164, 86, 58}, C_BLUE);
-    DrawInfoTile("LEVEL", levelText, (Rectangle){PANEL_X + 24, PANEL_Y + 232, 86, 54}, C_ACCENT);
-    DrawInfoTile("SPEED", speedText, (Rectangle){PANEL_X + 120, PANEL_Y + 232, 86, 54}, C_MAGENTA);
+    DrawInfoTile("最高", bestText, (Rectangle){PANEL_X + 24, PANEL_Y + 164, 86, 58}, C_ORANGE);
+    DrawInfoTile("时间", timeText, (Rectangle){PANEL_X + 120, PANEL_Y + 164, 86, 58}, C_BLUE);
+    DrawInfoTile("等级", levelText, (Rectangle){PANEL_X + 24, PANEL_Y + 232, 86, 54}, C_ACCENT);
+    DrawInfoTile("速度", speedText, (Rectangle){PANEL_X + 120, PANEL_Y + 232, 86, 54}, C_MAGENTA);
 
     DrawMiniDivider((Rectangle){PANEL_X + 24, PANEL_Y + 286, 182, 1});
-    DrawText("Pace", PANEL_X + 24, PANEL_Y + 294, 15, C_MUTED);
+    DrawUIText("节奏", PANEL_X + 24, PANEL_Y + 294, 15, C_MUTED);
     DrawRectangleRounded((Rectangle){PANEL_X + 68, PANEL_Y + 299, 138, 8}, 0.5f, 8, (Color){255, 255, 255, 34});
     DrawRectangleRounded((Rectangle){PANEL_X + 68, PANEL_Y + 299, 138.0f * SpeedRatio(game), 8}, 0.5f, 8, C_BLUE);
 
@@ -286,9 +295,9 @@ static void DrawMenu(const Game *game) {
     char difficultyText[40];
     char soundText[32];
 
-    snprintf(bestText, sizeof(bestText), "Best %d", game->highScore);
+    snprintf(bestText, sizeof(bestText), "最高 %d", game->highScore);
     snprintf(difficultyText, sizeof(difficultyText), "%s", GameDifficultyText(game->difficulty));
-    snprintf(soundText, sizeof(soundText), "%s", game->soundEnabled ? "Sound On" : "Sound Off");
+    snprintf(soundText, sizeof(soundText), "%s", game->soundEnabled ? "音效开" : "音效关");
 
     DrawRectangleRec(board, WithAlpha((Color){9, 13, 20, 255}, 128.0f * alpha));
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 244.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
@@ -296,8 +305,8 @@ static void DrawMenu(const Game *game) {
                                 WithAlpha((Color){116, 232, 178, 255}, 82.0f * alpha));
 
     DrawTitleSnakeMark((Vector2){modal.x + 34.0f, modal.y + 58.0f}, (float)GetTime());
-    DrawTextFit("SNAKE RUN", (Rectangle){modal.x + 84, modal.y + 28, modal.width - 108, 46}, 34, WithAlpha(C_TEXT, 255.0f * alpha), true);
-    DrawTextFit("Solo neon arena", (Rectangle){modal.x, modal.y + 80, modal.width, 26}, 18, WithAlpha(C_MUTED, 255.0f * alpha), true);
+    DrawTextFit("贪吃蛇", (Rectangle){modal.x + 84, modal.y + 28, modal.width - 108, 46}, 34, WithAlpha(C_TEXT, 255.0f * alpha), true);
+    DrawTextFit("霓虹单机模式", (Rectangle){modal.x, modal.y + 80, modal.width, 26}, 18, WithAlpha(C_MUTED, 255.0f * alpha), true);
 
     DrawPill(bestText, (Rectangle){modal.x + 30, modal.y + 120, 104, 30}, C_ORANGE);
     DrawPill(difficultyText, (Rectangle){modal.x + 146, modal.y + 120, 92, 30}, C_BLUE);
@@ -306,7 +315,7 @@ static void DrawMenu(const Game *game) {
     DrawRectangleRounded((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, WithAlpha(C_SURFACE_LIGHT, 118.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, 1.0f,
                                 WithAlpha(C_LINE, 130.0f * alpha));
-    DrawText("SETTINGS", (int)(modal.x + 42), (int)(modal.y + 220), 13, WithAlpha(C_MUTED, 255.0f * alpha));
+    DrawUIText("设置", (int)(modal.x + 42), (int)(modal.y + 220), 13, WithAlpha(C_MUTED, 255.0f * alpha));
     DrawMiniDivider((Rectangle){modal.x + 42, modal.y + 238, modal.width - 84, 1});
 
     for (int i = 0; i < MENU_BUTTON_COUNT; i++) {
@@ -318,8 +327,8 @@ static void DrawStateOverlay(const Game *game) {
     float alpha = game->overlayAlpha;
     Rectangle board = {BOARD_X, BOARD_Y, BOARD_W, BOARD_H};
     Rectangle modal = {BOARD_X + 92, BOARD_Y + 72 + (1.0f - alpha) * 12.0f, BOARD_W - 184, 318};
-    const char *title = game->state == STATE_GAME_OVER ? "GAME OVER" : "PAUSED";
-    const char *message = game->state == STATE_GAME_OVER ? "Final result" : "Run suspended";
+    const char *title = game->state == STATE_GAME_OVER ? "游戏结束" : "已暂停";
+    const char *message = game->state == STATE_GAME_OVER ? "最终成绩" : "本局暂停";
     char scoreText[64];
     char bestText[64];
     char timeText[32];
@@ -338,11 +347,11 @@ static void DrawStateOverlay(const Game *game) {
     FormatTime(game->runTime, timeText, sizeof(timeText));
     snprintf(modeText, sizeof(modeText), "%s", GameDifficultyText(game->difficulty));
 
-    DrawInfoTile(game->state == STATE_GAME_OVER ? "FINAL" : "SCORE", scoreText,
+    DrawInfoTile(game->state == STATE_GAME_OVER ? "最终" : "分数", scoreText,
                  (Rectangle){modal.x + 34, modal.y + 122, 160, 58}, C_ACCENT);
-    DrawInfoTile("BEST", bestText, (Rectangle){modal.x + 222, modal.y + 122, 160, 58}, C_ORANGE);
-    DrawInfoTile("TIME", timeText, (Rectangle){modal.x + 34, modal.y + 190, 160, 58}, C_BLUE);
-    DrawInfoTile("MODE", modeText, (Rectangle){modal.x + 222, modal.y + 190, 160, 58}, C_MAGENTA);
+    DrawInfoTile("最高", bestText, (Rectangle){modal.x + 222, modal.y + 122, 160, 58}, C_ORANGE);
+    DrawInfoTile("时间", timeText, (Rectangle){modal.x + 34, modal.y + 190, 160, 58}, C_BLUE);
+    DrawInfoTile("难度", modeText, (Rectangle){modal.x + 222, modal.y + 190, 160, 58}, C_MAGENTA);
 
     for (int i = 0; i < OVERLAY_BUTTON_COUNT; i++) {
         DrawButton(&game->overlayButtons[i]);
@@ -383,18 +392,22 @@ static void DrawRoundedPanel(Rectangle rect, float roundness, Color color, Color
     DrawRectangleRoundedLinesEx(rect, roundness, 12, 1.5f, border);
 }
 
+static void DrawUIText(const char *text, int x, int y, int fontSize, Color color) {
+    DrawTextEx(GetUIFont(), text, (Vector2){(float)x, (float)y}, (float)fontSize, 1.0f, color);
+}
+
 static void DrawTextFit(const char *text, Rectangle rect, int fontSize, Color color, bool centered) {
     int size = fontSize;
-    int width = MeasureText(text, size);
+    Vector2 measure = MeasureTextEx(GetUIFont(), text, (float)size, 1.0f);
 
-    while (width > (int)(rect.width - 16.0f) && size > 12) {
+    while (measure.x > rect.width - 16.0f && size > 12) {
         size--;
-        width = MeasureText(text, size);
+        measure = MeasureTextEx(GetUIFont(), text, (float)size, 1.0f);
     }
 
-    int x = centered ? (int)(rect.x + (rect.width - width) * 0.5f) : (int)rect.x;
-    int y = (int)(rect.y + (rect.height - size) * 0.5f);
-    DrawText(text, x, y, size, color);
+    int x = centered ? (int)(rect.x + (rect.width - measure.x) * 0.5f) : (int)rect.x;
+    int y = (int)(rect.y + (rect.height - measure.y) * 0.5f);
+    DrawTextEx(GetUIFont(), text, (Vector2){(float)x, (float)y}, (float)size, 1.0f, color);
 }
 
 static void DrawInfoTile(const char *label, const char *value, Rectangle rect, Color accent) {
@@ -469,6 +482,28 @@ static Color ButtonBaseColor(ButtonId id) {
 static bool ButtonIsSecondary(ButtonId id) {
     return id == BUTTON_DIFFICULTY || id == BUTTON_SOUND || id == BUTTON_RESET_BEST ||
            id == BUTTON_RESTART || id == BUTTON_MENU || id == BUTTON_QUIT;
+}
+
+static Font GetUIFont(void) {
+    static Font font = {0};
+    static bool loaded = false;
+
+    if (!loaded) {
+        int codepointCount = 0;
+        int *codepoints = LoadCodepoints(UI_FONT_CHARS, &codepointCount);
+        font = LoadFontEx(UI_FONT_PATH, 48, codepoints, codepointCount);
+        UnloadCodepoints(codepoints);
+
+        if (font.texture.id == 0) {
+            font = GetFontDefault();
+        } else {
+            SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+        }
+
+        loaded = true;
+    }
+
+    return font;
 }
 
 static Color MixColor(Color a, Color b, float t) {

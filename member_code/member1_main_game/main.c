@@ -10,7 +10,7 @@ int main(void) {
     SoundPack sounds = {0};
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake Arcade - raylib");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "贪吃蛇 - raylib");
     InitAudioDevice();
     SetTargetFPS(TARGET_FPS);
 
