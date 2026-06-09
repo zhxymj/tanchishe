@@ -5,32 +5,33 @@
 #include <math.h>
 #include <stdio.h>
 
-static const Color C_BG_TOP = {12, 18, 31, 255};
-static const Color C_BG_BOTTOM = {27, 35, 53, 255};
-static const Color C_PANEL = {23, 29, 44, 238};
-static const Color C_SURFACE = {16, 22, 35, 240};
-static const Color C_SURFACE_LIGHT = {34, 42, 60, 224};
-static const Color C_LINE = {110, 130, 160, 74};
+static const Color C_BG_TOP = {96, 188, 232, 255};
+static const Color C_BG_BOTTOM = {88, 218, 162, 255};
+static const Color C_PANEL = {18, 48, 66, 214};
+static const Color C_SURFACE = {22, 55, 70, 230};
+static const Color C_SURFACE_LIGHT = {67, 161, 151, 124};
+static const Color C_LINE = {235, 255, 245, 112};
 static const Color C_TEXT = {239, 244, 255, 255};
-static const Color C_MUTED = {154, 166, 188, 255};
-static const Color C_ACCENT = {92, 225, 162, 255};
-static const Color C_BLUE = {80, 160, 238, 255};
-static const Color C_ORANGE = {244, 181, 92, 255};
-static const Color C_MAGENTA = {226, 96, 170, 255};
-static const Color C_YELLOW = {245, 211, 118, 255};
-static const Color C_DANGER = {236, 96, 106, 255};
-static const Color C_BOARD_A = {24, 39, 43, 255};
-static const Color C_BOARD_B = {21, 34, 39, 255};
+static const Color C_MUTED = {193, 215, 226, 255};
+static const Color C_ACCENT = {86, 238, 154, 255};
+static const Color C_BLUE = {64, 166, 245, 255};
+static const Color C_ORANGE = {255, 181, 74, 255};
+static const Color C_MAGENTA = {255, 93, 154, 255};
+static const Color C_YELLOW = {255, 229, 98, 255};
+static const Color C_DANGER = {255, 92, 103, 255};
+static const Color C_BOARD_A = {92, 215, 139, 255};
+static const Color C_BOARD_B = {80, 204, 130, 255};
 
 static const char *UI_FONT_PATH = "C:/Windows/Fonts/simhei.ttf";
 static const char *UI_FONT_CHARS =
     "贪吃蛇霓虹冲刺单机街机专注走位刷新最高分进行本局状态菜单运行中暂停结束"
     "普通简单困难分数时间等级速度节奏设置开始游戏难度音效开关重置纪录退出"
     "继续重开再来一局游戏结束已暂停最终成绩返回最高普通简单困难格秒模式清空"
+    "大作战竞技场明亮休闲欢乐目标吞食糖果"
     "0123456789:/. ：，。";
 
 static void DrawBackground(void);
-static void DrawHeader(void);
+static void DrawHeader(const Game *game);
 static void DrawBoardFrame(void);
 static void DrawBoardGrid(void);
 static void DrawSnake(const Game *game);
@@ -59,7 +60,7 @@ static float SpeedRatio(const Game *game);
 void UIDrawGame(const Game *game) {
     ClearBackground(C_BG_BOTTOM);
     DrawBackground();
-    DrawHeader();
+    DrawHeader(game);
     DrawBoardFrame();
     DrawBoardGrid();
     FoodDraw(game);
@@ -78,31 +79,33 @@ static void DrawBackground(void) {
     float drift = fmodf(time * 14.0f, 64.0f);
 
     DrawRectangleGradientV(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, C_BG_TOP, C_BG_BOTTOM);
-    DrawRectangleGradientV(0, 0, WINDOW_WIDTH, 210, (Color){57, 104, 160, 42}, (Color){57, 104, 160, 0});
-    DrawRectangleGradientV(0, WINDOW_HEIGHT - 240, WINDOW_WIDTH, 240, (Color){7, 10, 17, 0}, (Color){7, 10, 17, 100});
+    DrawRectangleGradientV(0, 0, WINDOW_WIDTH, 190, (Color){255, 255, 255, 58}, (Color){255, 255, 255, 0});
+    DrawRectangleGradientV(0, WINDOW_HEIGHT - 210, WINDOW_WIDTH, 210, (Color){39, 121, 113, 0}, (Color){39, 121, 113, 72});
 
     for (int x = -64; x < WINDOW_WIDTH + 64; x += 32) {
-        DrawLine(x + (int)drift, 0, x + (int)drift, WINDOW_HEIGHT, (Color){255, 255, 255, 8});
+        DrawLine(x + (int)drift, 0, x + (int)drift, WINDOW_HEIGHT, (Color){255, 255, 255, 18});
     }
     for (int y = -64; y < WINDOW_HEIGHT + 64; y += 32) {
-        DrawLine(0, y + (int)(drift * 0.55f), WINDOW_WIDTH, y + (int)(drift * 0.55f), (Color){255, 255, 255, 7});
+        DrawLine(0, y + (int)(drift * 0.55f), WINDOW_WIDTH, y + (int)(drift * 0.55f), (Color){255, 255, 255, 15});
     }
-    for (int i = -WINDOW_HEIGHT; i < WINDOW_WIDTH; i += 56) {
+    for (int i = -WINDOW_HEIGHT; i < WINDOW_WIDTH; i += 62) {
         DrawLineEx((Vector2){(float)i + drift * 0.35f, 0.0f},
                    (Vector2){(float)(i + WINDOW_HEIGHT) + drift * 0.35f, (float)WINDOW_HEIGHT}, 1.0f,
-                   (Color){120, 230, 190, 7});
+                   (Color){255, 255, 255, 12});
     }
 
     for (int y = 138; y < WINDOW_HEIGHT; y += 96) {
         DrawLineEx((Vector2){42.0f, (float)y}, (Vector2){WINDOW_WIDTH - 42.0f, (float)y + 34.0f}, 1.0f,
-                   (Color){144, 188, 255, 8});
+                   (Color){255, 255, 255, 12});
     }
 }
 
-static void DrawHeader(void) {
+static void DrawHeader(const Game *game) {
     Rectangle header = {48, 30, 864, 102};
     float time = (float)GetTime();
+    char bestText[48];
 
+    snprintf(bestText, sizeof(bestText), "纪录 %d", game->highScore);
     DrawRoundedPanel(header, 0.18f, C_PANEL, C_LINE);
     DrawRectangleRounded((Rectangle){header.x + 14, header.y + 14, 5, header.height - 28}, 0.6f, 8, C_ACCENT);
     DrawRectangleRounded((Rectangle){header.x + 28, header.y + 16, header.width - 56, 1.0f}, 0.5f, 4,
@@ -110,33 +113,33 @@ static void DrawHeader(void) {
     DrawCornerTicks(header, 18.0f, (Color){176, 220, 255, 72});
 
     DrawTitleSnakeMark((Vector2){84.0f, 65.0f}, time);
-    DrawUIText("贪吃蛇", 134, 48, 34, C_TEXT);
-    DrawUIText("霓虹冲刺", 136, 86, 18, C_ACCENT);
-    DrawUIText("单机街机", 316, 54, 24, C_TEXT);
-    DrawUIText("专注走位，刷新最高分。", 316, 88, 17, (Color){198, 209, 229, 255});
+    DrawUIText("蛇蛇大作战", 134, 48, 32, C_TEXT);
+    DrawUIText("单机竞技场", 136, 86, 18, C_ACCENT);
+    DrawUIText("明亮竞技场", 316, 54, 24, C_TEXT);
+    DrawUIText("吞食糖果，刷新最高分。", 316, 88, 17, (Color){219, 244, 241, 255});
 
     DrawPill("单机", (Rectangle){714, 52, 66, 28}, C_BLUE);
-    DrawPill("进行", (Rectangle){790, 52, 66, 28}, C_ACCENT);
-    DrawPill("最高分", (Rectangle){714, 88, 142, 26}, C_ORANGE);
+    DrawPill(GameStateText(game->state), (Rectangle){790, 52, 66, 28}, C_ACCENT);
+    DrawPill(bestText, (Rectangle){714, 88, 142, 26}, C_ORANGE);
 }
 
 static void DrawBoardFrame(void) {
     Rectangle shadow = {BOARD_X + 8, BOARD_Y + 12, BOARD_W, BOARD_H};
     Rectangle board = {BOARD_X, BOARD_Y, BOARD_W, BOARD_H};
 
-    DrawRectangleRounded(shadow, 0.04f, 12, (Color){0, 0, 0, 82});
-    for (int i = 0; i < 5; i++) {
-        float pad = 18.0f + (float)i * 5.0f;
-        float alpha = 34.0f - (float)i * 5.0f;
+    DrawRectangleRounded(shadow, 0.04f, 12, (Color){0, 83, 58, 52});
+    for (int i = 0; i < 4; i++) {
+        float pad = 15.0f + (float)i * 6.0f;
+        float alpha = 50.0f - (float)i * 9.0f;
         DrawRectangleRoundedLinesEx((Rectangle){BOARD_X - pad, BOARD_Y - pad, BOARD_W + pad * 2.0f, BOARD_H + pad * 2.0f},
-                                    0.055f, 16, 2.0f, (Color){92, 210, 176, (unsigned char)alpha});
+                                    0.055f, 16, 2.0f, (Color){255, 255, 255, (unsigned char)alpha});
     }
     DrawRectangleRounded((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 0.05f, 14,
-                         (Color){16, 23, 34, 236});
+                         (Color){222, 255, 228, 92});
     DrawRectangleRoundedLinesEx((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 0.05f, 14, 2.0f,
-                                (Color){122, 151, 184, 112});
+                                (Color){255, 255, 255, 132});
     DrawCornerTicks((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 22.0f,
-                    (Color){190, 246, 224, 118});
+                    (Color){255, 255, 255, 120});
     DrawRectangleRounded(board, 0.03f, 10, C_BOARD_A);
 }
 
@@ -150,19 +153,19 @@ static void DrawBoardGrid(void) {
 
     for (int x = 0; x <= BOARD_COLS; x++) {
         int px = BOARD_X + x * CELL_SIZE;
-        DrawLine(px, BOARD_Y, px, BOARD_Y + BOARD_H, (Color){255, 255, 255, x % 5 == 0 ? 14 : 6});
+        DrawLine(px, BOARD_Y, px, BOARD_Y + BOARD_H, (Color){255, 255, 255, x % 5 == 0 ? 32 : 14});
     }
     for (int y = 0; y <= BOARD_ROWS; y++) {
         int py = BOARD_Y + y * CELL_SIZE;
-        DrawLine(BOARD_X, py, BOARD_X + BOARD_W, py, (Color){255, 255, 255, y % 4 == 0 ? 13 : 5});
+        DrawLine(BOARD_X, py, BOARD_X + BOARD_W, py, (Color){255, 255, 255, y % 4 == 0 ? 30 : 13});
     }
 
-    DrawRectangleGradientV(BOARD_X, BOARD_Y, BOARD_W, 68, (Color){255, 255, 255, 18}, (Color){255, 255, 255, 0});
-    DrawRectangleGradientV(BOARD_X, BOARD_Y + BOARD_H - 84, BOARD_W, 84, (Color){0, 0, 0, 0}, (Color){0, 0, 0, 58});
-    DrawRectangleGradientH(BOARD_X, BOARD_Y, 74, BOARD_H, (Color){0, 0, 0, 44}, (Color){0, 0, 0, 0});
-    DrawRectangleGradientH(BOARD_X + BOARD_W - 74, BOARD_Y, 74, BOARD_H, (Color){0, 0, 0, 0}, (Color){0, 0, 0, 44});
+    DrawRectangleGradientV(BOARD_X, BOARD_Y, BOARD_W, 86, (Color){255, 255, 255, 44}, (Color){255, 255, 255, 0});
+    DrawRectangleGradientV(BOARD_X, BOARD_Y + BOARD_H - 84, BOARD_W, 84, (Color){0, 118, 70, 0}, (Color){0, 118, 70, 30});
+    DrawRectangleGradientH(BOARD_X, BOARD_Y, 60, BOARD_H, (Color){255, 255, 255, 20}, (Color){255, 255, 255, 0});
+    DrawRectangleGradientH(BOARD_X + BOARD_W - 60, BOARD_Y, 60, BOARD_H, (Color){255, 255, 255, 0}, (Color){255, 255, 255, 20});
     DrawRectangleRoundedLinesEx((Rectangle){BOARD_X + 1, BOARD_Y + 1, BOARD_W - 2, BOARD_H - 2}, 0.03f, 10, 2.0f,
-                                (Color){185, 239, 219, 58});
+                                (Color){255, 255, 255, 82});
 }
 
 static void DrawSnake(const Game *game) {
@@ -172,37 +175,37 @@ static void DrawSnake(const Game *game) {
     if (flash > 1.0f) flash = 1.0f;
 
     Vector2 headCenter = BoardCellCenter(snake->body[0]);
-    DrawCircleGradient(headCenter, 28.0f + flash * 18.0f, (Color){104, 255, 177, (unsigned char)(42.0f + flash * 60.0f)},
+    DrawCircleGradient(headCenter, 36.0f + flash * 24.0f, (Color){255, 255, 255, (unsigned char)(52.0f + flash * 68.0f)},
                        (Color){104, 255, 177, 0});
 
     for (int i = snake->length - 1; i >= 0; i--) {
         Vector2 center = BoardCellCenter(snake->body[i]);
         float depth = snake->length > 1 ? (float)i / (float)(snake->length - 1) : 0.0f;
-        float radius = 7.3f + (1.0f - depth) * 1.6f;
+        float radius = 8.2f + (1.0f - depth) * 1.8f;
         if (i == 0) {
-            radius = 9.3f;
+            radius = 10.8f;
         }
-        DrawCircleV((Vector2){center.x + 2.0f, center.y + 3.0f}, radius, (Color){0, 0, 0, 58});
+        DrawCircleV((Vector2){center.x + 2.0f, center.y + 3.0f}, radius, (Color){0, 90, 72, 54});
     }
 
     for (int i = snake->length - 2; i >= 0; i--) {
         Vector2 a = BoardCellCenter(snake->body[i]);
         Vector2 b = BoardCellCenter(snake->body[i + 1]);
         float depth = snake->length > 1 ? (float)i / (float)(snake->length - 1) : 0.0f;
-        Color linkColor = MixColor((Color){86, 224, 139, 255}, (Color){49, 188, 197, 255}, depth);
+        Color linkColor = MixColor((Color){84, 240, 146, 255}, (Color){60, 196, 238, 255}, depth);
         linkColor = MixColor(linkColor, C_YELLOW, flash * (0.22f + 0.16f * (1.0f - depth)));
 
         if (fabsf(a.x - b.x) < 0.1f) {
             float y = a.y < b.y ? a.y : b.y;
-            Rectangle link = {a.x - 7.1f, y, 14.2f, fabsf(a.y - b.y)};
+            Rectangle link = {a.x - 8.0f, y, 16.0f, fabsf(a.y - b.y)};
             DrawRectangleRounded((Rectangle){link.x + 2.0f, link.y + 3.0f, link.width, link.height}, 0.5f, 8,
-                                 (Color){0, 0, 0, 42});
+                                 (Color){0, 90, 72, 36});
             DrawRectangleRounded(link, 0.5f, 8, linkColor);
         } else if (fabsf(a.y - b.y) < 0.1f) {
             float x = a.x < b.x ? a.x : b.x;
-            Rectangle link = {x, a.y - 7.1f, fabsf(a.x - b.x), 14.2f};
+            Rectangle link = {x, a.y - 8.0f, fabsf(a.x - b.x), 16.0f};
             DrawRectangleRounded((Rectangle){link.x + 2.0f, link.y + 3.0f, link.width, link.height}, 0.5f, 8,
-                                 (Color){0, 0, 0, 42});
+                                 (Color){0, 90, 72, 36});
             DrawRectangleRounded(link, 0.5f, 8, linkColor);
         }
     }
@@ -210,19 +213,19 @@ static void DrawSnake(const Game *game) {
     for (int i = snake->length - 1; i >= 0; i--) {
         Vector2 center = BoardCellCenter(snake->body[i]);
         float depth = snake->length > 1 ? (float)i / (float)(snake->length - 1) : 0.0f;
-        float radius = 7.3f + (1.0f - depth) * 1.6f;
-        Color base = MixColor((Color){89, 231, 140, 255}, (Color){49, 190, 202, 255}, depth);
+        float radius = 8.2f + (1.0f - depth) * 1.8f;
+        Color base = MixColor((Color){101, 248, 150, 255}, (Color){58, 201, 242, 255}, depth);
 
         if (i == 0) {
-            radius = 9.3f;
+            radius = 10.8f;
             base = MixColor(C_ACCENT, C_YELLOW, flash * 0.55f);
         } else {
             base = MixColor(base, C_YELLOW, flash * 0.24f * (1.0f - depth));
         }
 
         DrawCircleV(center, radius, base);
-        DrawCircleV((Vector2){center.x - radius * 0.28f, center.y - radius * 0.32f}, radius * 0.28f,
-                    (Color){229, 255, 238, 148});
+        DrawCircleV((Vector2){center.x - radius * 0.28f, center.y - radius * 0.32f}, radius * 0.34f,
+                    (Color){245, 255, 248, 168});
     }
 
     DrawSnakeEyes(snake->body[0], snake->direction);
@@ -316,7 +319,7 @@ static void DrawMenu(const Game *game) {
     snprintf(difficultyText, sizeof(difficultyText), "%s", GameDifficultyText(game->difficulty));
     snprintf(soundText, sizeof(soundText), "%s", game->soundEnabled ? "音效开" : "音效关");
 
-    DrawRectangleRec(board, WithAlpha((Color){9, 13, 20, 255}, 128.0f * alpha));
+    DrawRectangleRec(board, WithAlpha((Color){7, 62, 72, 255}, 82.0f * alpha));
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 244.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 8, modal.y + 8, modal.width - 16, modal.height - 16}, 0.07f, 12, 1.2f,
                                 WithAlpha((Color){116, 232, 178, 255}, 82.0f * alpha));
@@ -325,14 +328,14 @@ static void DrawMenu(const Game *game) {
                          WithAlpha((Color){255, 255, 255, 255}, 34.0f * alpha));
 
     DrawTitleSnakeMark((Vector2){modal.x + 34.0f, modal.y + 58.0f}, (float)GetTime());
-    DrawTextFit("贪吃蛇", (Rectangle){modal.x + 84, modal.y + 28, modal.width - 108, 46}, 34, WithAlpha(C_TEXT, 255.0f * alpha), true);
-    DrawTextFit("霓虹单机模式", (Rectangle){modal.x, modal.y + 80, modal.width, 26}, 18, WithAlpha(C_MUTED, 255.0f * alpha), true);
+    DrawTextFit("蛇蛇大作战", (Rectangle){modal.x + 84, modal.y + 28, modal.width - 108, 46}, 32, WithAlpha(C_TEXT, 255.0f * alpha), true);
+    DrawTextFit("明亮单机竞技场", (Rectangle){modal.x, modal.y + 80, modal.width, 26}, 18, WithAlpha(C_MUTED, 255.0f * alpha), true);
 
     DrawPill(bestText, (Rectangle){modal.x + 30, modal.y + 120, 104, 30}, C_ORANGE);
     DrawPill(difficultyText, (Rectangle){modal.x + 146, modal.y + 120, 92, 30}, C_BLUE);
     DrawPill(soundText, (Rectangle){modal.x + 250, modal.y + 120, 80, 30}, C_MAGENTA);
 
-    DrawRectangleRounded((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, WithAlpha(C_SURFACE_LIGHT, 118.0f * alpha));
+    DrawRectangleRounded((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, WithAlpha(C_SURFACE_LIGHT, 150.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, 1.0f,
                                 WithAlpha(C_LINE, 130.0f * alpha));
     DrawUIText("设置", (int)(modal.x + 42), (int)(modal.y + 220), 13, WithAlpha(C_MUTED, 255.0f * alpha));
@@ -354,7 +357,7 @@ static void DrawStateOverlay(const Game *game) {
     char timeText[32];
     char modeText[40];
 
-    DrawRectangleRec(board, WithAlpha((Color){9, 13, 20, 255}, 122.0f * alpha));
+    DrawRectangleRec(board, WithAlpha((Color){7, 62, 72, 255}, 96.0f * alpha));
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 242.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRounded((Rectangle){modal.x + 16, modal.y + 18, 5, modal.height - 36}, 0.6f, 8,
                          WithAlpha(game->state == STATE_GAME_OVER ? C_DANGER : C_BLUE, 170.0f * alpha));
@@ -382,11 +385,11 @@ static void DrawStateOverlay(const Game *game) {
 static void DrawButton(const UIButton *button) {
     Color base = ButtonBaseColor(button->id);
     bool secondary = ButtonIsSecondary(button->id);
-    Color fill = secondary ? MixColor((Color){29, 36, 52, 218}, WithAlpha(base, 92.0f), button->hoverT)
-                           : MixColor(base, MixColor(base, RAYWHITE, 0.28f), button->hoverT);
-    Color border = secondary ? MixColor(WithAlpha(base, 86.0f), WithAlpha(base, 186.0f), button->hoverT)
+    Color fill = secondary ? MixColor(WithAlpha((Color){238, 255, 248, 255}, 72.0f), WithAlpha(base, 152.0f), button->hoverT)
+                           : MixColor(base, MixColor(base, RAYWHITE, 0.32f), button->hoverT);
+    Color border = secondary ? MixColor(WithAlpha((Color){255, 255, 255, 255}, 82.0f), WithAlpha(base, 216.0f), button->hoverT)
                              : MixColor((Color){255, 255, 255, 72}, (Color){255, 255, 255, 190}, button->hoverT);
-    Color textColor = secondary ? MixColor(C_TEXT, base, 0.25f + button->hoverT * 0.18f) : (Color){12, 30, 30, 255};
+    Color textColor = secondary ? MixColor(C_TEXT, (Color){255, 255, 255, 255}, button->hoverT * 0.35f) : (Color){12, 30, 30, 255};
     Rectangle rect = button->bounds;
     float lift = 1.5f * button->hoverT - 2.0f * button->pressT;
 
@@ -395,7 +398,7 @@ static void DrawButton(const UIButton *button) {
     rect.width += button->hoverT * 3.0f;
 
     DrawRectangleRounded((Rectangle){rect.x, rect.y + 4.0f + button->pressT * 2.0f, rect.width, rect.height}, 0.18f, 10,
-                         (Color){0, 0, 0, secondary ? 46 : 66});
+                         (Color){0, 87, 72, secondary ? 42 : 62});
     if (!secondary) {
         DrawRectangleRounded((Rectangle){rect.x - 2.0f, rect.y - 2.0f, rect.width + 4.0f, rect.height + 4.0f}, 0.2f, 10,
                              WithAlpha(base, 34.0f + button->hoverT * 42.0f));

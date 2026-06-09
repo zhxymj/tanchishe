@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-#define FOOD_PARTICLE_BURST 24
+#define FOOD_PARTICLE_BURST 30
 
 static Vector2 CellCenter(Cell cell);
 static void EmitFoodParticles(Game *game, Vector2 center);
@@ -71,29 +71,31 @@ void FoodDraw(const Game *game) {
 
         float t = particle->age / particle->life;
         Color color = particle->color;
-        color.a = (unsigned char)((1.0f - t) * 190.0f);
+        color.a = (unsigned char)((1.0f - t) * 220.0f);
+        DrawCircleGradient(particle->position, particle->radius * (2.2f + t * 1.4f), color, (Color){color.r, color.g, color.b, 0});
         DrawCircleV(particle->position, particle->radius * (1.0f + t * 1.4f), color);
     }
 
     if (game->eatRingTimer > 0.0f) {
         float progress = 1.0f - game->eatRingTimer / EAT_RING_LIFE;
-        float alpha = (1.0f - progress) * 170.0f;
-        float radius = 12.0f + progress * 34.0f;
-        DrawCircleGradient(game->lastEatCenter, radius + 10.0f, (Color){255, 228, 130, (unsigned char)(alpha * 0.32f)},
-                           (Color){255, 228, 130, 0});
-        DrawRing(game->lastEatCenter, radius, radius + 3.2f, 0.0f, 360.0f, 36,
-                 (Color){255, 231, 128, (unsigned char)alpha});
+        float alpha = (1.0f - progress) * 205.0f;
+        float radius = 14.0f + progress * 44.0f;
+        DrawCircleGradient(game->lastEatCenter, radius + 16.0f, (Color){255, 252, 158, (unsigned char)(alpha * 0.38f)},
+                           (Color){255, 252, 158, 0});
+        DrawRing(game->lastEatCenter, radius, radius + 4.0f, 0.0f, 360.0f, 48,
+                 (Color){255, 245, 116, (unsigned char)alpha});
     }
 
     float pulse = 1.0f + sinf(game->food.pulse) * 0.12f + game->eatFeedback * 0.7f;
     Vector2 center = CellCenter(game->food.position);
-    float radius = 6.5f * pulse;
+    float radius = 8.0f * pulse;
 
-    DrawCircleGradient(center, 24.0f * pulse, (Color){255, 88, 116, 108}, (Color){255, 88, 116, 0});
-    DrawCircleGradient(center, 13.0f * pulse, (Color){255, 205, 118, 125}, (Color){255, 88, 116, 0});
-    DrawCircleV(center, radius, (Color){255, 88, 116, 255});
+    DrawCircleGradient(center, 34.0f * pulse, (Color){255, 74, 144, 132}, (Color){255, 74, 144, 0});
+    DrawCircleGradient(center, 18.0f * pulse, (Color){255, 229, 91, 155}, (Color){255, 94, 142, 0});
+    DrawCircleV(center, radius, (Color){255, 76, 139, 255});
+    DrawCircleV(center, radius * 0.62f, (Color){255, 186, 84, 235});
     DrawCircleV((Vector2){center.x - radius * 0.32f, center.y - radius * 0.35f}, radius * 0.28f,
-                (Color){255, 230, 235, 225});
+                (Color){255, 255, 238, 230});
 }
 
 static Vector2 CellCenter(Cell cell) {
@@ -107,14 +109,16 @@ static void EmitFoodParticles(Game *game, Vector2 center) {
     for (int i = 0; i < FOOD_PARTICLE_BURST; i++) {
         FoodParticle *particle = &game->particles[i % MAX_FOOD_PARTICLES];
         float angle = (float)GetRandomValue(0, 359) * DEG2RAD;
-        float speed = (float)GetRandomValue(45, 125);
+        float speed = (float)GetRandomValue(70, 165);
 
         particle->active = true;
         particle->position = center;
         particle->velocity = (Vector2){cosf(angle) * speed, sinf(angle) * speed};
         particle->age = 0.0f;
-        particle->life = (float)GetRandomValue(26, 52) / 100.0f;
-        particle->radius = (float)GetRandomValue(2, 5);
-        particle->color = (i % 2 == 0) ? (Color){255, 226, 118, 255} : (Color){255, 96, 136, 255};
+        particle->life = (float)GetRandomValue(30, 62) / 100.0f;
+        particle->radius = (float)GetRandomValue(2, 6);
+        particle->color = (i % 3 == 0) ? (Color){255, 232, 92, 255} :
+                          (i % 3 == 1) ? (Color){255, 84, 148, 255} :
+                                         (Color){86, 210, 255, 255};
     }
 }
