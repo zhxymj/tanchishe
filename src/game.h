@@ -30,8 +30,8 @@
 #define HIGH_SCORE_FILE "snake_raylib_highscore.dat"
 
 #define MAX_FOOD_PARTICLES 36
-#define MENU_BUTTON_COUNT 5
-#define SIDE_BUTTON_COUNT 4
+#define MENU_BUTTON_COUNT 4
+#define SIDE_BUTTON_COUNT 3
 #define OVERLAY_BUTTON_COUNT 2
 #define EAT_RING_LIFE 0.42f
 
@@ -61,7 +61,6 @@ typedef enum {
     BUTTON_QUIT,
     BUTTON_PAUSE,
     BUTTON_RESTART,
-    BUTTON_SOUND,
     BUTTON_RESET_BEST,
     BUTTON_MENU
 } ButtonId;
@@ -104,12 +103,6 @@ typedef struct {
 } UIButton;
 
 typedef struct {
-    Sound eat;
-    Sound gameOver;
-    bool ready;
-} SoundPack;
-
-typedef struct {
     GameState state;
     Snake snake;
     Food food;
@@ -129,7 +122,6 @@ typedef struct {
     float overlayAlpha;
     float scorePulse;
     Vector2 lastEatCenter;
-    bool soundEnabled;
     bool shouldQuit;
     FoodParticle particles[MAX_FOOD_PARTICLES];
     UIButton menuButtons[MENU_BUTTON_COUNT];
@@ -137,20 +129,16 @@ typedef struct {
     UIButton overlayButtons[OVERLAY_BUTTON_COUNT];
 } Game;
 
-void SoundsInit(SoundPack *sounds);
-void SoundsUnload(SoundPack *sounds);
-
 void GameInit(Game *game);
 void GameStart(Game *game);
 void GameRestart(Game *game);
 void GameReturnToMenu(Game *game);
 void GameTogglePause(Game *game);
 void GameNextDifficulty(Game *game);
-void GameToggleSound(Game *game);
 void GameResetHighScore(Game *game);
 void GameActivateButton(Game *game, ButtonId id);
 void GameHandleKeyboard(Game *game);
-void GameUpdate(Game *game, SoundPack *sounds, float dt);
+void GameUpdate(Game *game, float dt);
 
 int GameLoadHighScore(void);
 void GameSaveHighScore(int score);

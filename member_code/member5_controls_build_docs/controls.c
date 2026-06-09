@@ -9,14 +9,12 @@ static float Approach(float value, float target, float amount);
 void ControlsInit(Game *game) {
     game->menuButtons[0] = (UIButton){{BOARD_X + 150, BOARD_Y + 196, 300, 48}, "开始游戏", BUTTON_START, false, false, 0.0f, 0.0f};
     game->menuButtons[1] = (UIButton){{BOARD_X + 150, BOARD_Y + 272, 144, 42}, "难度", BUTTON_DIFFICULTY, false, false, 0.0f, 0.0f};
-    game->menuButtons[2] = (UIButton){{BOARD_X + 306, BOARD_Y + 272, 144, 42}, "音效", BUTTON_SOUND, false, false, 0.0f, 0.0f};
-    game->menuButtons[3] = (UIButton){{BOARD_X + 150, BOARD_Y + 326, 144, 42}, "重置纪录", BUTTON_RESET_BEST, false, false, 0.0f, 0.0f};
-    game->menuButtons[4] = (UIButton){{BOARD_X + 306, BOARD_Y + 326, 144, 42}, "退出", BUTTON_QUIT, false, false, 0.0f, 0.0f};
+    game->menuButtons[2] = (UIButton){{BOARD_X + 306, BOARD_Y + 272, 144, 42}, "重置纪录", BUTTON_RESET_BEST, false, false, 0.0f, 0.0f};
+    game->menuButtons[3] = (UIButton){{BOARD_X + 150, BOARD_Y + 326, 300, 42}, "退出", BUTTON_QUIT, false, false, 0.0f, 0.0f};
 
     game->sideButtons[0] = (UIButton){{PANEL_X + 24, PANEL_Y + 315, 182, 34}, "暂停", BUTTON_PAUSE, false, false, 0.0f, 0.0f};
     game->sideButtons[1] = (UIButton){{PANEL_X + 24, PANEL_Y + 358, 182, 34}, "重开", BUTTON_RESTART, false, false, 0.0f, 0.0f};
-    game->sideButtons[2] = (UIButton){{PANEL_X + 24, PANEL_Y + 401, 182, 34}, "音效", BUTTON_SOUND, false, false, 0.0f, 0.0f};
-    game->sideButtons[3] = (UIButton){{PANEL_X + 24, PANEL_Y + 444, 182, 34}, "重置纪录", BUTTON_RESET_BEST, false, false, 0.0f, 0.0f};
+    game->sideButtons[2] = (UIButton){{PANEL_X + 24, PANEL_Y + 401, 182, 34}, "重置纪录", BUTTON_RESET_BEST, false, false, 0.0f, 0.0f};
 
     game->overlayButtons[0] = (UIButton){{BOARD_X + 145, BOARD_Y + 326, 146, 42}, "继续", BUTTON_START, false, false, 0.0f, 0.0f};
     game->overlayButtons[1] = (UIButton){{BOARD_X + 309, BOARD_Y + 326, 146, 42}, "菜单", BUTTON_MENU, false, false, 0.0f, 0.0f};
@@ -25,19 +23,14 @@ void ControlsInit(Game *game) {
 void ControlsUpdate(Game *game, float dt) {
     Vector2 mouse = GetMousePosition();
     static char menuDifficulty[64];
-    static char menuSound[32];
-    static char soundLabel[32];
     static char pauseLabel[32];
 
     snprintf(menuDifficulty, sizeof(menuDifficulty), "难度：%s", GameDifficultyText(game->difficulty));
-    snprintf(menuSound, sizeof(menuSound), "音效：%s", game->soundEnabled ? "开" : "关");
     game->menuButtons[0].label = "开始游戏";
     game->menuButtons[1].label = menuDifficulty;
-    game->menuButtons[2].label = menuSound;
-    game->menuButtons[3].label = "重置纪录";
-    game->menuButtons[4].label = "退出";
+    game->menuButtons[2].label = "重置纪录";
+    game->menuButtons[3].label = "退出";
 
-    snprintf(soundLabel, sizeof(soundLabel), "音效：%s", game->soundEnabled ? "开" : "关");
     if (game->state == STATE_PAUSED) {
         snprintf(pauseLabel, sizeof(pauseLabel), "继续");
         game->sideButtons[0].id = BUTTON_PAUSE;
@@ -50,8 +43,7 @@ void ControlsUpdate(Game *game, float dt) {
     }
     game->sideButtons[0].label = pauseLabel;
     game->sideButtons[1].label = "重开";
-    game->sideButtons[2].label = soundLabel;
-    game->sideButtons[3].label = "重置纪录";
+    game->sideButtons[2].label = "重置纪录";
 
     for (int i = 0; i < SIDE_BUTTON_COUNT; i++) {
         UpdateButton(&game->sideButtons[i], mouse, dt);

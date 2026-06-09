@@ -5,12 +5,12 @@
 #include <math.h>
 #include <stdio.h>
 
-static const Color C_BG_TOP = {96, 188, 232, 255};
-static const Color C_BG_BOTTOM = {88, 218, 162, 255};
-static const Color C_PANEL = {18, 48, 66, 214};
-static const Color C_SURFACE = {22, 55, 70, 230};
-static const Color C_SURFACE_LIGHT = {67, 161, 151, 124};
-static const Color C_LINE = {235, 255, 245, 112};
+static const Color C_BG_TOP = {100, 178, 246, 255};
+static const Color C_BG_BOTTOM = {214, 150, 244, 255};
+static const Color C_PANEL = {24, 42, 82, 214};
+static const Color C_SURFACE = {27, 45, 86, 230};
+static const Color C_SURFACE_LIGHT = {88, 126, 206, 124};
+static const Color C_LINE = {238, 244, 255, 116};
 static const Color C_TEXT = {239, 244, 255, 255};
 static const Color C_MUTED = {193, 215, 226, 255};
 static const Color C_ACCENT = {86, 238, 154, 255};
@@ -19,13 +19,13 @@ static const Color C_ORANGE = {255, 181, 74, 255};
 static const Color C_MAGENTA = {255, 93, 154, 255};
 static const Color C_YELLOW = {255, 229, 98, 255};
 static const Color C_DANGER = {255, 92, 103, 255};
-static const Color C_BOARD_A = {92, 215, 139, 255};
-static const Color C_BOARD_B = {80, 204, 130, 255};
+static const Color C_BOARD_A = {109, 181, 238, 255};
+static const Color C_BOARD_B = {96, 166, 228, 255};
 
 static const char *UI_FONT_PATH = "C:/Windows/Fonts/simhei.ttf";
 static const char *UI_FONT_CHARS =
     "贪吃蛇霓虹冲刺单机街机专注走位刷新最高分进行本局状态菜单运行中暂停结束"
-    "普通简单困难分数时间等级速度节奏设置开始游戏难度音效开关重置纪录退出"
+    "普通简单困难分数时间等级速度节奏设置开始游戏难度重置纪录退出"
     "继续重开再来一局游戏结束已暂停最终成绩返回最高普通简单困难格秒模式清空"
     "大作战竞技场明亮休闲欢乐目标吞食糖果"
     "0123456789:/. ：，。";
@@ -80,7 +80,7 @@ static void DrawBackground(void) {
 
     DrawRectangleGradientV(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, C_BG_TOP, C_BG_BOTTOM);
     DrawRectangleGradientV(0, 0, WINDOW_WIDTH, 190, (Color){255, 255, 255, 58}, (Color){255, 255, 255, 0});
-    DrawRectangleGradientV(0, WINDOW_HEIGHT - 210, WINDOW_WIDTH, 210, (Color){39, 121, 113, 0}, (Color){39, 121, 113, 72});
+    DrawRectangleGradientV(0, WINDOW_HEIGHT - 210, WINDOW_WIDTH, 210, (Color){54, 55, 128, 0}, (Color){54, 55, 128, 78});
 
     for (int x = -64; x < WINDOW_WIDTH + 64; x += 32) {
         DrawLine(x + (int)drift, 0, x + (int)drift, WINDOW_HEIGHT, (Color){255, 255, 255, 18});
@@ -127,7 +127,7 @@ static void DrawBoardFrame(void) {
     Rectangle shadow = {BOARD_X + 8, BOARD_Y + 12, BOARD_W, BOARD_H};
     Rectangle board = {BOARD_X, BOARD_Y, BOARD_W, BOARD_H};
 
-    DrawRectangleRounded(shadow, 0.04f, 12, (Color){0, 83, 58, 52});
+    DrawRectangleRounded(shadow, 0.04f, 12, (Color){32, 46, 118, 54});
     for (int i = 0; i < 4; i++) {
         float pad = 15.0f + (float)i * 6.0f;
         float alpha = 50.0f - (float)i * 9.0f;
@@ -135,7 +135,7 @@ static void DrawBoardFrame(void) {
                                     0.055f, 16, 2.0f, (Color){255, 255, 255, (unsigned char)alpha});
     }
     DrawRectangleRounded((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 0.05f, 14,
-                         (Color){222, 255, 228, 92});
+                         (Color){232, 238, 255, 96});
     DrawRectangleRoundedLinesEx((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 0.05f, 14, 2.0f,
                                 (Color){255, 255, 255, 132});
     DrawCornerTicks((Rectangle){BOARD_X - 12, BOARD_Y - 12, BOARD_W + 24, BOARD_H + 24}, 22.0f,
@@ -161,7 +161,7 @@ static void DrawBoardGrid(void) {
     }
 
     DrawRectangleGradientV(BOARD_X, BOARD_Y, BOARD_W, 86, (Color){255, 255, 255, 44}, (Color){255, 255, 255, 0});
-    DrawRectangleGradientV(BOARD_X, BOARD_Y + BOARD_H - 84, BOARD_W, 84, (Color){0, 118, 70, 0}, (Color){0, 118, 70, 30});
+    DrawRectangleGradientV(BOARD_X, BOARD_Y + BOARD_H - 84, BOARD_W, 84, (Color){47, 54, 130, 0}, (Color){47, 54, 130, 34});
     DrawRectangleGradientH(BOARD_X, BOARD_Y, 60, BOARD_H, (Color){255, 255, 255, 20}, (Color){255, 255, 255, 0});
     DrawRectangleGradientH(BOARD_X + BOARD_W - 60, BOARD_Y, 60, BOARD_H, (Color){255, 255, 255, 0}, (Color){255, 255, 255, 20});
     DrawRectangleRoundedLinesEx((Rectangle){BOARD_X + 1, BOARD_Y + 1, BOARD_W - 2, BOARD_H - 2}, 0.03f, 10, 2.0f,
@@ -313,13 +313,11 @@ static void DrawMenu(const Game *game) {
     Rectangle modal = {BOARD_X + 120, BOARD_Y + 28, BOARD_W - 240, 426};
     char bestText[64];
     char difficultyText[40];
-    char soundText[32];
 
     snprintf(bestText, sizeof(bestText), "最高 %d", game->highScore);
     snprintf(difficultyText, sizeof(difficultyText), "%s", GameDifficultyText(game->difficulty));
-    snprintf(soundText, sizeof(soundText), "%s", game->soundEnabled ? "音效开" : "音效关");
 
-    DrawRectangleRec(board, WithAlpha((Color){7, 62, 72, 255}, 82.0f * alpha));
+    DrawRectangleRec(board, WithAlpha((Color){20, 30, 82, 255}, 86.0f * alpha));
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 244.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 8, modal.y + 8, modal.width - 16, modal.height - 16}, 0.07f, 12, 1.2f,
                                 WithAlpha((Color){116, 232, 178, 255}, 82.0f * alpha));
@@ -333,7 +331,7 @@ static void DrawMenu(const Game *game) {
 
     DrawPill(bestText, (Rectangle){modal.x + 30, modal.y + 120, 104, 30}, C_ORANGE);
     DrawPill(difficultyText, (Rectangle){modal.x + 146, modal.y + 120, 92, 30}, C_BLUE);
-    DrawPill(soundText, (Rectangle){modal.x + 250, modal.y + 120, 80, 30}, C_MAGENTA);
+    DrawPill("单机", (Rectangle){modal.x + 250, modal.y + 120, 80, 30}, C_MAGENTA);
 
     DrawRectangleRounded((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, WithAlpha(C_SURFACE_LIGHT, 150.0f * alpha));
     DrawRectangleRoundedLinesEx((Rectangle){modal.x + 24, modal.y + 214, modal.width - 48, 138}, 0.05f, 8, 1.0f,
@@ -357,7 +355,7 @@ static void DrawStateOverlay(const Game *game) {
     char timeText[32];
     char modeText[40];
 
-    DrawRectangleRec(board, WithAlpha((Color){7, 62, 72, 255}, 96.0f * alpha));
+    DrawRectangleRec(board, WithAlpha((Color){20, 30, 82, 255}, 100.0f * alpha));
     DrawRoundedPanel(modal, 0.075f, WithAlpha(C_SURFACE, 242.0f * alpha), WithAlpha(C_LINE, 255.0f * alpha));
     DrawRectangleRounded((Rectangle){modal.x + 16, modal.y + 18, 5, modal.height - 36}, 0.6f, 8,
                          WithAlpha(game->state == STATE_GAME_OVER ? C_DANGER : C_BLUE, 170.0f * alpha));
@@ -398,7 +396,7 @@ static void DrawButton(const UIButton *button) {
     rect.width += button->hoverT * 3.0f;
 
     DrawRectangleRounded((Rectangle){rect.x, rect.y + 4.0f + button->pressT * 2.0f, rect.width, rect.height}, 0.18f, 10,
-                         (Color){0, 87, 72, secondary ? 42 : 62});
+                         (Color){31, 42, 116, secondary ? 42 : 62});
     if (!secondary) {
         DrawRectangleRounded((Rectangle){rect.x - 2.0f, rect.y - 2.0f, rect.width + 4.0f, rect.height + 4.0f}, 0.2f, 10,
                              WithAlpha(base, 34.0f + button->hoverT * 42.0f));
@@ -505,8 +503,6 @@ static Color ButtonBaseColor(ButtonId id) {
             return C_ACCENT;
         case BUTTON_DIFFICULTY:
             return C_BLUE;
-        case BUTTON_SOUND:
-            return C_MAGENTA;
         case BUTTON_RESET_BEST:
             return C_YELLOW;
         case BUTTON_RESTART:
@@ -520,7 +516,7 @@ static Color ButtonBaseColor(ButtonId id) {
 }
 
 static bool ButtonIsSecondary(ButtonId id) {
-    return id == BUTTON_DIFFICULTY || id == BUTTON_SOUND || id == BUTTON_RESET_BEST ||
+    return id == BUTTON_DIFFICULTY || id == BUTTON_RESET_BEST ||
            id == BUTTON_RESTART || id == BUTTON_MENU || id == BUTTON_QUIT;
 }
 

@@ -3,41 +3,18 @@
 #include "food.h"
 #include "snake.h"
 
-#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-static Sound MakeToneSound(float frequency, float duration, float volume);
 static void ApplyDifficulty(Game *game);
 static void ResetRound(Game *game, GameState state);
-static void MoveSnake(Game *game, SoundPack *sounds);
+static void MoveSnake(Game *game);
 static float Approach(float value, float target, float amount);
-
-void SoundsInit(SoundPack *sounds) {
-    memset(sounds, 0, sizeof(*sounds));
-    sounds->ready = IsAudioDeviceReady();
-    if (!sounds->ready) {
-        return;
-    }
-
-    sounds->eat = MakeToneSound(720.0f, 0.08f, 0.18f);
-    sounds->gameOver = MakeToneSound(170.0f, 0.28f, 0.22f);
-}
-
-void SoundsUnload(SoundPack *sounds) {
-    if (!sounds->ready) {
-        return;
-    }
-
-    UnloadSound(sounds->eat);
-    UnloadSound(sounds->gameOver);
-}
 
 void GameInit(Game *game) {
     memset(game, 0, sizeof(*game));
     game->difficulty = DIFFICULTY_NORMAL;
     game->highScore = GameLoadHighScore();
-    game->soundEnabled = true;
     ApplyDifficulty(game);
     ResetRound(game, STATE_MENU);
     game->overlayAlpha = 1.0f;
@@ -78,10 +55,6 @@ void GameNextDifficulty(Game *game) {
     }
 }
 
-void GameToggleSound(Game *game) {
-    game->soundEnabled = !game->soundEnabled;
-}
-
 void GameResetHighScore(Game *game) {
     game->highScore = 0;
     GameSaveHighScore(0);
@@ -103,9 +76,6 @@ void GameActivateButton(Game *game, ButtonId id) {
             break;
         case BUTTON_RESTART:
             GameRestart(game);
-            break;
-        case BUTTON_SOUND:
-            GameToggleSound(game);
             break;
         case BUTTON_RESET_BEST:
             GameResetHighScore(game);
@@ -159,7 +129,7 @@ void GameHandleKeyboard(Game *game) {
     }
 }
 
-void GameUpdate(Game *game, SoundPack *sounds, float dt) {
+void GameUpdate(Game *game, float dt) {
     float overlayTarget = (game->state == STATE_RUNNING) ? 0.0f : 1.0f;
     game->overlayAlpha = Approach(game->overlayAlpha, overlayTarget, dt * 3.8f);
 
@@ -198,7 +168,7 @@ void GameUpdate(Game *game, SoundPack *sounds, float dt) {
     game->moveTimer += dt;
     while (game->moveTimer >= game->moveInterval) {
         game->moveTimer -= game->moveInterval;
-        MoveSnake(game, sounds);
+        MoveSnake(game);
         if (game->state != STATE_RUNNING) {
             break;
         }
@@ -251,34 +221,6 @@ const char *GameDifficultyText(Difficulty difficulty) {
     return "";
 }
 
-static Sound MakeToneSound(float frequency, float duration, float volume) {
-    const int sampleRate = 44100;
-    const int sampleCount = (int)(sampleRate * duration);
-    short *samples = (short *)MemAlloc((unsigned int)sampleCount * sizeof(short));
-
-    if (samples == NULL) {
-        return (Sound){0};
-    }
-
-    for (int i = 0; i < sampleCount; i++) {
-        float t = (float)i / (float)sampleRate;
-        float fade = 1.0f - (float)i / (float)sampleCount;
-        float wave = sinf(2.0f * PI * frequency * t) * fade * volume;
-        samples[i] = (short)(wave * 32767.0f);
-    }
-
-    Wave wave = {
-        .frameCount = (unsigned int)sampleCount,
-        .sampleRate = sampleRate,
-        .sampleSize = 16,
-        .channels = 1,
-        .data = samples
-    };
-    Sound sound = LoadSoundFromWave(wave);
-    UnloadWave(wave);
-    return sound;
-}
-
 static void ApplyDifficulty(Game *game) {
     switch (game->difficulty) {
         case DIFFICULTY_EASY:
@@ -318,16 +260,13 @@ static void ResetRound(Game *game, GameState state) {
     game->state = state;
 }
 
-static void MoveSnake(Game *game, SoundPack *sounds) {
+static void MoveSnake(Game *game) {
     Cell next = SnakeNextHead(&game->snake);
     bool ateFood = SnakeSameCell(next, game->food.position);
 
     if (SnakeHitsWall(next) || SnakeHitsSelf(&game->snake, next, ateFood)) {
         game->state = STATE_GAME_OVER;
         game->gameOverTimer = 0.0f;
-        if (sounds->ready && game->soundEnabled) {
-            PlaySound(sounds->gameOver);
-        }
         return;
     }
 
@@ -339,10 +278,6 @@ static void MoveSnake(Game *game, SoundPack *sounds) {
         game->moveInterval = game->baseMoveInterval - (float)(game->level - 1) * game->speedStep;
         if (game->moveInterval < game->minMoveInterval) {
             game->moveInterval = game->minMoveInterval;
-        }
-
-        if (sounds->ready && game->soundEnabled) {
-            PlaySound(sounds->eat);
         }
 
         if (game->score > game->highScore) {

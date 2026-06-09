@@ -7,15 +7,12 @@
 
 int main(void) {
     Game game = {0};
-    SoundPack sounds = {0};
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "贪吃蛇 - raylib");
-    InitAudioDevice();
     SetTargetFPS(TARGET_FPS);
 
     srand((unsigned int)time(NULL));
-    SoundsInit(&sounds);
     GameInit(&game);
     ControlsInit(&game);
 
@@ -24,15 +21,13 @@ int main(void) {
 
         GameHandleKeyboard(&game);
         ControlsUpdate(&game, dt);
-        GameUpdate(&game, &sounds, dt);
+        GameUpdate(&game, dt);
 
         BeginDrawing();
         UIDrawGame(&game);
         EndDrawing();
     }
 
-    SoundsUnload(&sounds);
-    CloseAudioDevice();
     CloseWindow();
     return 0;
 }
