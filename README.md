@@ -41,7 +41,7 @@ tanchishe/
     snake.c/.h      蛇身数据、方向、移动、增长、撞墙和撞自身
     food.c/.h       食物生成、动画、得分反馈、粒子和光圈效果
     ui.c/.h         背景、棋盘、面板、按钮、菜单和弹窗绘制
-    controls.c/.h   五按钮菜单、按钮、鼠标点击和交互状态更新
+    controls.c/.h   菜单按钮、侧栏按钮、鼠标点击和交互状态更新
   CMakeLists.txt    CMake 构建文件
   build.bat         Windows + gcc + raylib 快速编译脚本
 ```

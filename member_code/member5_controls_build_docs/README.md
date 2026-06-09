@@ -6,9 +6,9 @@
 - `controls.h`
 - `build.bat`
 - `CMakeLists.txt`
-- `PROJECT_README.md`
-- `PROJECT_TASKS.md`
-- `PROJECT_CONTRIBUTING.md`
+- 根目录 `README.md`
+- 根目录 `TASKS.md`
+- 根目录 `CONTRIBUTING.md`
 
 ## 主要任务
 
@@ -28,4 +28,4 @@
 
 ## 合并说明
 
-修改完成后，将 `controls.c` 和 `controls.h` 合并回 `src/`，将构建脚本和项目说明合并回仓库根目录对应文件。
+修改完成后，将 `controls.c` 和 `controls.h` 合并回 `src/`，将构建脚本和项目说明合并回仓库根目录对应文件。成员目录不再保留重复的项目文档副本，避免提交材料混乱。
